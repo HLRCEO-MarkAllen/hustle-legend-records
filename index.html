@@ -1,187 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mark Allen | Hustle Legend Records</title>
-  <meta name="description" content="Official home of Mark Allen and Hustle Legend Records. Stream Born 2 Be A Legend, explore The Legend Files, credits, socials, and the independent catalog." />
-  <meta name="keywords" content="Mark Allen, Hustle Legend Records, Born 2 Be A Legend, hip hop, rap, independent artist, Prodigal Son" />
-  <meta name="author" content="Mark Allen / Hustle Legend Records" />
+  <meta name="description" content="Official home of Mark Allen and Hustle Legend Records. Stream Born 2 Be A Legend, explore the story, and connect with Mark Allen across platforms." />
+  <meta name="theme-color" content="#070707" />
   <meta property="og:title" content="Mark Allen | Hustle Legend Records" />
-  <meta property="og:description" content="Built independent. Heard worldwide." />
+  <meta property="og:description" content="Born 2 Be A Legend — 20 tracks. Independent. Artist-owned. Built from the ground up." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <link rel="stylesheet" href="styles.css" />
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "MusicGroup",
-    "name": "Mark Allen",
-    "alternateName": ["Prodigal Son"],
-    "genre": ["Hip-Hop", "Rap"],
-    "recordLabel": {
-      "@type": "Organization",
-      "name": "Hustle Legend Records"
-    },
-    "sameAs": [
-      "https://open.spotify.com/artist/5sIqloiBKCND1N1PkjHpzp",
-      "https://www.instagram.com/mark682331",
-      "https://www.tiktok.com/@markallen1779",
-      "https://www.facebook.com/share/1GuK7XvQM8/",
-      "https://soundcloud.com/markallen276",
-      "https://www.linkedin.com/in/mark-allen-5984a8410"
-    ],
-    "album": {
-      "@type": "MusicAlbum",
-      "name": "Born 2 Be A Legend",
-      "datePublished": "2026-04-05",
-      "numTracks": 20,
-      "byArtist": {
-        "@type": "MusicGroup",
-        "name": "Mark Allen"
-      },
-      "recordLabel": "Hustle Legend Records"
-    }
-  }
-  </script>
+  <style>
+    :root{--bg:#070707;--card:#111;--soft:#191919;--text:#f5f5f5;--muted:#a9a9a9;--gold:#e6b84f;--gold2:#ffda7d}
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(circle at top,#1a1305 0,#090909 28rem,#070707 60rem);color:var(--text);line-height:1.55}
+    a{color:inherit;text-decoration:none}.wrap{width:min(1050px,92%);margin:auto}
+    nav{position:sticky;top:0;z-index:50;background:rgba(7,7,7,.86);backdrop-filter:blur(10px);border-bottom:1px solid #222}
+    .navinner{display:flex;align-items:center;justify-content:space-between;padding:14px 0}.brand{font-weight:900;letter-spacing:.08em}.brand span{color:var(--gold)}
+    .navlinks{display:flex;gap:16px;font-size:.9rem;color:#ddd}.hero{padding:78px 0 46px;text-align:center}
+    .kicker{display:inline-block;padding:7px 12px;border:1px solid #4c3a13;border-radius:999px;background:#141006;color:var(--gold2);font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    h1{font-size:clamp(2.8rem,9vw,6.5rem);line-height:.92;margin:22px 0 10px;letter-spacing:-.05em}
+    .legend{color:var(--gold);text-shadow:0 0 36px rgba(230,184,79,.18)}
+    .sub{max-width:720px;margin:0 auto;color:#c7c7c7;font-size:clamp(1rem,2.8vw,1.25rem)}
+    .cta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:28px}.btn{padding:13px 19px;border-radius:12px;border:1px solid #303030;background:#151515;font-weight:800;transition:.2s}.btn:hover{transform:translateY(-2px);border-color:#666}.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:0}
+    section{padding:42px 0}.section-title{font-size:1.75rem;margin:0 0 18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(180deg,#121212,#0d0d0d);border:1px solid #232323;border-radius:18px;padding:20px}
+    .card h3{margin:4px 0 8px}.card p{color:var(--muted);margin:0}.platforms{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.platform{display:flex;align-items:center;justify-content:center;min-height:58px;border-radius:14px;background:#121212;border:1px solid #242424;font-weight:850}.platform:hover{border-color:var(--gold);color:var(--gold2)}
+    .story{max-width:820px}.story p{color:#c8c8c8;font-size:1.05rem}.quote{font-size:clamp(1.5rem,5vw,2.6rem);font-weight:900;line-height:1.15;border-left:4px solid var(--gold);padding-left:18px;margin:24px 0}
+    .credits{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.tiny{font-size:.88rem;color:#8d8d8d} footer{padding:38px 0 60px;border-top:1px solid #202020;color:#888;text-align:center}
+    @media(max-width:760px){.navlinks{display:none}.grid,.platforms,.credits{grid-template-columns:1fr}.hero{padding-top:60px}section{padding:32px 0}}
+  </style>
 </head>
 <body>
-  <header class="hero">
-    <nav class="nav shell">
-      <a class="brand" href="#top">HUSTLE LEGEND RECORDS</a>
-      <div class="navlinks">
-        <a href="#music">Music</a>
-        <a href="#legend-files">Legend Files</a>
-        <a href="#story">Story</a>
-        <a href="#links">Links</a>
-      </div>
-    </nav>
-
-    <section class="hero-inner shell" id="top">
-      <div class="eyebrow">MARK ALLEN • HUSTLE LEGEND RECORDS</div>
-      <h1>Built independent.<br>Heard worldwide.</h1>
-      <p class="lead">Official home of Mark Allen, <em>Born 2 Be A Legend</em>, and the story behind Hustle Legend Records.</p>
-      <div class="cta-row">
-        <a class="btn primary" href="https://markallen2.hearnow.com/" target="_blank" rel="noopener">Listen Now</a>
-        <a class="btn ghost" href="#links">All Official Links</a>
-      </div>
-    </section>
-  </header>
-
-  <main>
-    <section class="section shell" id="music">
-      <div class="section-head">
-        <span class="kicker">FLAGSHIP RELEASE</span>
-        <h2>Born 2 Be A Legend</h2>
-        <p>20 tracks. One chapter. Released April 5, 2026.</p>
-      </div>
-
-      <div class="album-card">
-        <div class="album-art">
-          <div class="album-mark">B2BAL</div>
-          <div class="album-sub">MARK ALLEN</div>
-        </div>
-        <div class="album-copy">
-          <p><strong>Born 2 Be A Legend</strong> documents a comeback after years away from releasing music — struggle, ownership, relationships, conflict, rebuilding, and the decision to create without waiting for permission.</p>
-          <div class="platform-grid">
-            <a href="https://open.spotify.com/album/117U2xbXj8zQxjXgxv13WI" target="_blank" rel="noopener">Spotify</a>
-            <a href="https://music.apple.com/us/album/born-2-be-a-legend/1895660253" target="_blank" rel="noopener">Apple Music</a>
-            <a href="https://tidal.com/album/506697059" target="_blank" rel="noopener">TIDAL</a>
-            <a href="https://link.deezer.com/s/34ixV2r8duCn3bsANBpq5" target="_blank" rel="noopener">Deezer</a>
-            <a href="https://soundcloud.com/markallen276" target="_blank" rel="noopener">SoundCloud</a>
-            <a href="https://genius.com/albums/Mark-allen/Born-2-be-a-legend" target="_blank" rel="noopener">Genius</a>
-            <a href="https://music.youtube.com/playlist?list=OLAK5uy_lNuGT1thLIeWfrU2hb3XpOTX8cQla3y5Y" target="_blank" rel="noopener">YouTube Music</a>
-            <a href="https://markallen2.hearnow.com/" target="_blank" rel="noopener">All Platforms</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section dark-band" id="legend-files">
-      <div class="shell">
-        <div class="section-head">
-          <span class="kicker">THE ARCHIVE</span>
-          <h2>The Legend Files</h2>
-          <p>The music didn't start in 2026. This is the timeline behind the comeback.</p>
-        </div>
-
-        <div class="timeline">
-          <article>
-            <span>2002</span>
-            <h3>The Beginning</h3>
-            <p>Mark Allen begins making music, developing the writing style and independent mindset that later shape Hustle Legend Records.</p>
-          </article>
-          <article>
-            <span>Prodigal Son Era</span>
-            <h3>History Before the Streaming Era</h3>
-            <p>Physical releases, early projects, old studios, collaborators, and the identity that came before the current Mark Allen chapter.</p>
-          </article>
-          <article>
-            <span>Five Years Away</span>
-            <h3>The Disappearance</h3>
-            <p>A long interruption changes the catalog, the artist, and the meaning of eventually returning to the microphone.</p>
-          </article>
-          <article>
-            <span>April 5, 2026</span>
-            <h3>Born 2 Be A Legend</h3>
-            <p>The 20-track comeback album arrives and becomes the foundation of a larger independent catalog and label story.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section shell" id="story">
-      <div class="split">
-        <div>
-          <span class="kicker">THE LABEL</span>
-          <h2>Hustle Legend Records</h2>
-        </div>
-        <div class="story-copy">
-          <p>Hustle Legend Records was built around a simple idea: create the work, understand the business behind it, keep ownership where possible, and build something that survives longer than a social post.</p>
-          <p>The label connects music, masters, publishing, visual identity, documentation, collaborations, and long-term catalog development under one independent roof.</p>
-          <blockquote>“The songs are the art. The ownership is the foundation.”</blockquote>
-        </div>
-      </div>
-    </section>
-
-    <section class="section links-section" id="links">
-      <div class="shell">
-        <div class="section-head">
-          <span class="kicker">OFFICIAL FOOTPRINT</span>
-          <h2>Find Mark Allen Everywhere</h2>
-          <p>One permanent home. Every official destination.</p>
-        </div>
-
-        <div class="link-cards">
-          <a href="https://open.spotify.com/artist/5sIqloiBKCND1N1PkjHpzp" target="_blank" rel="noopener"><strong>Spotify</strong><span>Artist profile</span></a>
-          <a href="https://www.instagram.com/mark682331" target="_blank" rel="noopener"><strong>Instagram</strong><span>@mark682331</span></a>
-          <a href="https://www.tiktok.com/@markallen1779" target="_blank" rel="noopener"><strong>TikTok</strong><span>@markallen1779</span></a>
-          <a href="https://www.facebook.com/share/1GuK7XvQM8/" target="_blank" rel="noopener"><strong>Facebook</strong><span>Mark Allen</span></a>
-          <a href="https://www.youtube.com/@hustlelegendrecords" target="_blank" rel="noopener"><strong>YouTube</strong><span>Hustle Legend Records</span></a>
-          <a href="https://soundcloud.com/markallen276" target="_blank" rel="noopener"><strong>SoundCloud</strong><span>Mark Allen</span></a>
-          <a href="https://www.linkedin.com/in/mark-allen-5984a8410" target="_blank" rel="noopener"><strong>LinkedIn</strong><span>Professional profile</span></a>
-          <a href="https://genius.com/albums/Mark-allen/Born-2-be-a-legend" target="_blank" rel="noopener"><strong>Genius</strong><span>Lyrics & album</span></a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section shell">
-      <div class="manifesto">
-        <span>HUSTLE LEGEND RECORDS</span>
-        <h2>No fake overnight story.</h2>
-        <p>Music. Ownership. History. Receipts. Still building.</p>
-        <a class="btn primary" href="https://markallen2.hearnow.com/" target="_blank" rel="noopener">Play Born 2 Be A Legend</a>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="shell footer-inner">
-      <div>© 2026 Mark Allen / Hustle Legend Records</div>
-      <div>Built independent. Heard worldwide.</div>
-    </div>
-  </footer>
+<nav><div class="wrap navinner"><div class="brand">HUSTLE <span>LEGEND</span> RECORDS</div><div class="navlinks"><a href="#listen">Listen</a><a href="#story">Story</a><a href="#connect">Connect</a></div></div></nav>
+<header class="hero"><div class="wrap">
+  <div class="kicker">Official Mark Allen / Hustle Legend Records</div>
+  <h1>BORN 2 BE A <span class="legend">LEGEND</span></h1>
+  <p class="sub">20 tracks. Independent. Artist-owned. Written, produced and built from the ground up by Mark Allen.</p>
+  <div class="cta"><a class="btn primary" href="#listen">STREAM THE ALBUM</a><a class="btn" href="#story">READ THE STORY</a></div>
+</div></header>
+<main>
+<section id="listen"><div class="wrap">
+  <h2 class="section-title">Listen Everywhere</h2>
+  <div class="platforms">
+    <a class="platform" href="https://open.spotify.com/album/117U2xbXj8zQxjXgxv13WI" target="_blank" rel="noopener">Spotify</a>
+    <a class="platform" href="https://music.apple.com/us/album/born-2-be-a-legend/1895660253?ls" target="_blank" rel="noopener">Apple Music</a>
+    <a class="platform" href="https://tidal.com/album/506697059" target="_blank" rel="noopener">TIDAL</a>
+    <a class="platform" href="https://link.deezer.com/s/34ixV2r8duCn3bsANBpq5" target="_blank" rel="noopener">Deezer</a>
+    <a class="platform" href="https://on.soundcloud.com/DkRMMx6OVvccButWM1" target="_blank" rel="noopener">SoundCloud</a>
+    <a class="platform" href="https://music.youtube.com/playlist?list=OLAK5uy_lNuGT1thLIeWfrU2hb3XpOTX8cQla3y5Y" target="_blank" rel="noopener">YouTube Music</a>
+  </div>
+</div></section>
+<section><div class="wrap">
+  <h2 class="section-title">The Record</h2>
+  <div class="grid">
+    <div class="card"><h3>20 Tracks</h3><p>A full-length independent statement built as a complete story, not a playlist of random singles.</p></div>
+    <div class="card"><h3>Artist Owned</h3><p>Mark Allen controls the creative vision while building Hustle Legend Records as a long-term catalog and brand.</p></div>
+    <div class="card"><h3>April 5, 2026</h3><p>The official release date of <em>Born 2 Be A Legend</em> — the first major chapter of the Hustle Legend Records era.</p></div>
+  </div>
+</div></section>
+<section id="story"><div class="wrap story">
+  <h2 class="section-title">This Was Never Just An Album.</h2>
+  <p><em>Born 2 Be A Legend</em> is Mark Allen turning years of setbacks, unfinished chapters, family, survival, ambition and raw independence into one project. The record reconnects the artist who disappeared for five years with the man who came back determined to own the work, build the label and leave something behind.</p>
+  <div class="quote">Disappear for five years. Come back with twenty reasons they should've remembered the name.</div>
+  <p>From personal records like “Karma” to the return statement of “5 Years Later…” and the defiance running through songs like “Rowdy,” the album is built around one idea: legacy is not something somebody gives you. You build it.</p>
+</div></section>
+<section><div class="wrap">
+  <h2 class="section-title">Hustle Legend Records</h2>
+  <div class="credits">
+    <div class="card"><h3>Mark Allen</h3><p>Founder & CEO · Artist · Writer · Producer · Mix/Master Engineer</p></div>
+    <div class="card"><h3>The Mission</h3><p>Independent ownership, catalog building, authentic storytelling and music designed to outlive the moment.</p></div>
+  </div>
+</div></section>
+<section id="connect"><div class="wrap">
+  <h2 class="section-title">Connect With Mark Allen</h2>
+  <p class="tiny">Personal artist socials — kept separate from Hustle Legend Records business accounts.</p>
+  <div class="platforms" style="margin-top:14px">
+    <a class="platform" href="https://www.facebook.com/share/1GuK7XvQM8/" target="_blank" rel="noopener">Facebook</a>
+    <a class="platform" href="https://www.instagram.com/mark682331" target="_blank" rel="noopener">Instagram</a>
+    <a class="platform" href="https://www.tiktok.com/@markallen1779" target="_blank" rel="noopener">TikTok</a>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap">© 2026 Mark Allen · Hustle Legend Records<br><span class="tiny">Independent music. Owned vision. Built for legacy.</span></div></footer>
 </body>
 </html>

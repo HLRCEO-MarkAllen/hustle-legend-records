@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hlrceo-markallen.github.io/hustle-legend-records/sitemap.xml
+Sitemap: https://hustlelegendrecords.com/sitemap.xml

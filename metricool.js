@@ -34,7 +34,6 @@
   };
   runMetricool();
 
-  const campaign=readCampaign();
   if((incoming.source||incoming.campaign)&&typeof window.gtag==='function'){
     window.gtag('event','hlr_campaign_landing',{
       campaign_source:incoming.source,
@@ -104,6 +103,18 @@
       a.textContent="WHAT'S MOVING NOW";
       heroCta.append(a);
     }
+    document.querySelectorAll('.listen-grid').forEach(grid=>{
+      const href='https://www.qobuz.com/au-en/album/born-2-be-a-legend-mark-allen/y9suok72r1doq';
+      if(!Array.from(grid.querySelectorAll('a')).some(a=>a.href===href)){
+        const a=document.createElement('a');
+        a.className='platform';
+        a.href=href;
+        a.target='_blank';
+        a.rel='noopener';
+        a.textContent='Qobuz';
+        grid.append(a);
+      }
+    });
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',enhanceHomepage);
   else enhanceHomepage();

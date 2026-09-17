@@ -1,4 +1,4 @@
-const CACHE = 'hlr-app-v1';
+const CACHE = 'hlr-app-v2';
 const APP_SHELL = [
   '/app/',
   '/radio/',
@@ -11,6 +11,8 @@ const APP_SHELL = [
   '/styles.css',
   '/site.js',
   '/radio/station.js',
+  '/radio/catalog.json',
+  '/radio/config.json',
   '/app/app.js',
   '/HLR%20Logo.png',
   '/hlr-app.webmanifest'

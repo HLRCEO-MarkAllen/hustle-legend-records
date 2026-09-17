@@ -1,0 +1,28 @@
+{
+  "station": "HLR Radio",
+  "artist": "Mark Allen",
+  "album": "Born 2 Be A Legend",
+  "releaseDate": "2026-04-05",
+  "tracks": [
+    {"position":1,"title":"5 Years Later…","slug":"5-years-later","story":"/songs/5-years-later/","streamPath":"/radio-media/01-5-years-later.mp3"},
+    {"position":2,"title":"Karma","slug":"karma","story":"/songs/karma/","streamPath":"/radio-media/02-karma.mp3"},
+    {"position":3,"title":"Rare Breed","slug":"rare-breed","story":"/songs/rare-breed/","streamPath":"/radio-media/03-rare-breed.mp3"},
+    {"position":4,"title":"Hood Fam","slug":"hood-fam","story":"/songs/hood-fam/","streamPath":"/radio-media/04-hood-fam.mp3"},
+    {"position":5,"title":"Blacked Out Memories","slug":"blacked-out-memories","story":"/songs/blacked-out-memories/","streamPath":"/radio-media/05-blacked-out-memories.mp3"},
+    {"position":6,"title":"Bite My Tongue","slug":"bite-my-tongue","story":"/songs/bite-my-tongue/","streamPath":"/radio-media/06-bite-my-tongue.mp3"},
+    {"position":7,"title":"Got a Problem","slug":"got-a-problem","story":"/songs/got-a-problem/","streamPath":"/radio-media/07-got-a-problem.mp3"},
+    {"position":8,"title":"Deja Vu","slug":"deja-vu","story":"/songs/deja-vu/","streamPath":"/radio-media/08-deja-vu.mp3"},
+    {"position":9,"title":"Loser","slug":"loser","story":"/songs/loser/","streamPath":"/radio-media/09-loser.mp3"},
+    {"position":10,"title":"King Cobra","slug":"king-cobra","story":"/songs/king-cobra/","streamPath":"/radio-media/10-king-cobra.mp3"},
+    {"position":11,"title":"Kiss My Ass","slug":"kiss-my-ass","story":"/songs/kiss-my-ass/","streamPath":"/radio-media/11-kiss-my-ass.mp3"},
+    {"position":12,"title":"All Alone","slug":"all-alone","story":"/songs/all-alone/","streamPath":"/radio-media/12-all-alone.mp3"},
+    {"position":13,"title":"Rowdy","slug":"rowdy","story":"/songs/rowdy/","streamPath":"/radio-media/13-rowdy.mp3"},
+    {"position":14,"title":"Started This War","slug":"started-this-war","story":"/songs/started-this-war/","streamPath":"/radio-media/14-started-this-war.mp3"},
+    {"position":15,"title":"Told U","slug":"told-u","story":"/songs/told-u/","streamPath":"/radio-media/15-told-u.mp3"},
+    {"position":16,"title":"My Angel","slug":"my-angel","story":"/songs/my-angel/","streamPath":"/radio-media/16-my-angel.mp3"},
+    {"position":17,"title":"Dreams","slug":"dreams","story":"/songs/dreams/","streamPath":"/radio-media/17-dreams.mp3"},
+    {"position":18,"title":"Who I Am","slug":"who-i-am","story":"/songs/who-i-am/","streamPath":"/radio-media/18-who-i-am.mp3"},
+    {"position":19,"title":"Truth Bomb","slug":"truth-bomb","story":"/songs/truth-bomb/","streamPath":"/radio-media/19-truth-bomb.mp3"},
+    {"position":20,"title":"S.O.S.","slug":"sos","story":"/songs/sos/","streamPath":"/radio-media/20-sos.mp3"}
+  ]
+}

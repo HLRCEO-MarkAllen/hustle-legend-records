@@ -77,7 +77,12 @@ const HLR_STATION = {
   ]
 };
 
-let currentIndex = 0;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+const savedIndex = Number(localStorage.getItem('hlr-radio-index'));
+let currentIndex = Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < HLR_STATION.rotation.length ? savedIndex : 0;
 const queueEl = document.getElementById("queue");
 const nowTitle = document.getElementById("nowTitle");
 const nowArtist = document.getElementById("nowArtist");
@@ -107,6 +112,10 @@ function setTrack(index){
   nowArtist.textContent = track.artist;
   nowNote.textContent = track.note;
   storyLink.href = track.story;
+  localStorage.setItem('hlr-radio-index', String(currentIndex));
+  const history = JSON.parse(localStorage.getItem('hlr-radio-history') || '[]');
+  const nextHistory = [{title:track.title, story:track.story, at:Date.now()}, ...history.filter((item)=>item.title !== track.title)].slice(0,5);
+  localStorage.setItem('hlr-radio-history', JSON.stringify(nextHistory));
   renderQueue();
 }
 
@@ -132,4 +141,4 @@ copyLink.addEventListener("click",async()=>{
   }
 });
 
-renderQueue();
+setTrack(currentIndex);

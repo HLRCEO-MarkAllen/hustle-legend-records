@@ -1,0 +1,12 @@
+{
+  "stationName": "HLR Radio",
+  "timezone": "America/Chicago",
+  "directFeedEnabled": false,
+  "directMediaBase": "/radio-media/",
+  "fallback": {
+    "type": "spotify-album-embed",
+    "albumId": "117U2xbXj8zQxjXgxv13WI"
+  },
+  "sourceStatus": "staging",
+  "sourceNote": "Direct HLR-hosted playback is wired but remains disabled until radio-safe derivatives are generated from the private 320 kbps customer archive. The private customer ZIP and masters must never be committed to the public repository."
+}

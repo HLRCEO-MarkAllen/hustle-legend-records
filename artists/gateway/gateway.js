@@ -8,6 +8,18 @@
   const set=(el,msg,type='')=>{el.textContent=msg;el.className='status'+(type?` ${type}`:'')};
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
+  function ensureTermsControl(){
+    if($('termsAccepted')) return;
+    const submitButton=$('submitTrack');
+    const toolbar=submitButton?.closest('.toolbar');
+    if(!toolbar) return;
+    const wrap=document.createElement('div');
+    wrap.className='checkgrid';
+    wrap.style.marginTop='12px';
+    wrap.innerHTML=`<label class="check"><input id="termsAccepted" type="checkbox"> I have read and accept the <a href="./terms.html" target="_blank" rel="noopener" style="color:#ffe39a">HLR Artist Gateway Submission Terms</a>.</label>`;
+    toolbar.parentNode.insertBefore(wrap,toolbar);
+  }
+
   async function loadProfile(){
     const {data,error}=await sb.from('artist_profiles').select('*').eq('user_id',user.id).maybeSingle();
     if(error) throw error;
@@ -26,6 +38,7 @@
     $('profileSpotify').value=profile.spotify_url||'';
     $('profileInstagram').value=profile.instagram_url||'';
     $('directoryOptIn').checked=!!profile.directory_opt_in;
+    ensureTermsControl();
   }
 
   async function route(session){
@@ -49,7 +62,7 @@
     set($('authStatus'),'Creating artist account…');
     const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:'https://hustlelegendrecords.com/artists/gateway/',data:{account_type:'artist',stage_name,contact_name}}});
     if(error)return set($('authStatus'),error.message,'bad');
-    if(!data.session)return set($('authStatus'),'Account created. Confirm the email, then return here and sign in. If the confirmation page itself looks blank afterward, your email can still be confirmed—just come back to this HLR Gateway.','good');
+    if(!data.session)return set($('authStatus'),'Account created. Confirm the email, then return here and sign in.','good');
     await route(data.session);
   }
 
@@ -65,6 +78,7 @@
     if(!title)return set($('submissionStatus'),'Track title is required.','bad');
     if(!url&&!file)return set($('submissionStatus'),'Add a review link or upload an audio file.','bad');
     if(!$('authorized').checked)return set($('submissionStatus'),'You must confirm that you are authorized to submit this recording.','bad');
+    if(!$('termsAccepted')?.checked)return set($('submissionStatus'),'You must accept the HLR Artist Gateway Submission Terms before submitting.','bad');
     let storage_path=null;
     try{
       set($('submissionStatus'),'Preparing submission…');
@@ -75,11 +89,11 @@
         const {error:upErr}=await sb.storage.from('hlr-artist-submissions').upload(storage_path,file,{upsert:false});
         if(upErr)throw upErr;
       }
-      const row={artist_user_id:user.id,artist_name:profile.stage_name,track_title:title,release_title:$('releaseTitle').value.trim()||null,track_url:url||null,genre:$('genre').value.trim()||null,explicit:$('explicit').checked,notes:$('submissionNotes').value.trim()||null,wants_radio:$('wantRadio').checked,wants_editorial:$('wantEditorial').checked,wants_interview:$('wantInterview').checked,wants_licensing:$('wantLicensing').checked,master_controlled:$('masterControlled').checked,publishing_controlled:$('publishingControlled').checked,samples_cleared:$('samplesCleared').checked,authorized_to_submit:true,clean_available:$('cleanAvailable').checked,instrumental_available:$('instrumentalAvailable').checked,storage_path,status:'submitted'};
+      const row={artist_user_id:user.id,artist_name:profile.stage_name,track_title:title,release_title:$('releaseTitle').value.trim()||null,track_url:url||null,genre:$('genre').value.trim()||null,explicit:$('explicit').checked,notes:$('submissionNotes').value.trim()||null,wants_radio:$('wantRadio').checked,wants_editorial:$('wantEditorial').checked,wants_interview:$('wantInterview').checked,wants_licensing:$('wantLicensing').checked,master_controlled:$('masterControlled').checked,publishing_controlled:$('publishingControlled').checked,samples_cleared:$('samplesCleared').checked,authorized_to_submit:true,clean_available:$('cleanAvailable').checked,instrumental_available:$('instrumentalAvailable').checked,storage_path,status:'submitted',terms_version:'2026-09-17',terms_accepted_at:new Date().toISOString()};
       const {error}=await sb.from('artist_submissions').insert(row);
       if(error)throw error;
       set($('submissionStatus'),'Submitted to HLR. Your dashboard will show each status change.','good');
-      ['trackTitle','releaseTitle','genre','trackUrl','submissionNotes'].forEach(id=>$(id).value='');$('trackFile').value='';
+      ['trackTitle','releaseTitle','genre','trackUrl','submissionNotes'].forEach(id=>$(id).value='');$('trackFile').value='';$('termsAccepted').checked=false;
       await loadSubmissions();
     }catch(e){set($('submissionStatus'),e.message||'Submission failed.','bad');}
   }

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>HLR Radio Control Room</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#080808">
+  <link rel="icon" href="../../HLR%20Logo.png" type="image/png">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    :root{--gold:#e6b84f;--gold2:#ffe39a;--bg:#080808;--panel:#11100d;--line:#4a3b21;--muted:#aaa;--green:#7ee08f;--red:#ff6d6d}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,rgba(230,184,79,.12),transparent 28%),#080808;color:#eee;font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1180px,calc(100% - 28px));margin:auto}.top{padding:26px 0 10px}.brandrow{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.brandrow img{width:72px;height:72px;object-fit:contain}.eyebrow{color:var(--gold);letter-spacing:.14em;font-size:.74rem;font-weight:900}.title{font-family:Georgia,serif;font-size:clamp(2.4rem,7vw,5.2rem);margin:8px 0 4px}.sub{color:#aaa;max-width:820px}.panel{border:1px solid var(--line);border-radius:20px;padding:20px;background:linear-gradient(145deg,#15110a,#090909);margin:14px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field{display:grid;gap:7px}.field label{font-size:.78rem;color:#bcae8b;font-weight:800}.field input,.field select,.field textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #43371f;background:#0b0b0b;color:#fff}.field textarea{min-height:90px;resize:vertical}.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 15px;border:1px solid #6a5226;border-radius:10px;background:#0d0b08;color:var(--gold2);font-weight:900;cursor:pointer}.btn.primary{background:var(--gold);color:#111;border-color:var(--gold)}.btn.danger{border-color:#6b2b2b;color:#ffb0b0}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.status{padding:11px 13px;border-radius:10px;background:#0c0c0c;border:1px solid #2d281f;color:#bbb}.status.good{border-color:#315e3b;color:var(--green)}.status.bad{border-color:#6b2b2b;color:#ffb0b0}.hidden{display:none!important}.cards{display:grid;gap:10px}.card{padding:14px;border:1px solid #322b1d;border-radius:13px;background:#0c0b09}.card strong{color:var(--gold2)}.meta{font-size:.78rem;color:#8f8a80;margin-top:4px}.split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.badge{display:inline-block;border:1px solid #66512b;border-radius:99px;padding:5px 9px;font-size:.72rem;color:#cfbc91}.live{color:#ff8484}.small{font-size:.82rem;color:#969087;line-height:1.5}@media(max-width:850px){.grid,.grid3,.split{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="wrap"><div class="brandrow"><div><div class="eyebrow">HUSTLE LEGEND RECORDS · PRIVATE OPERATIONS</div><h1 class="title">HLR RADIO CONTROL ROOM</h1><p class="sub">Staff login, audio library, podcast/show scheduling, station mode and audit-ready radio operations.</p></div><img src="../../HLR%20Logo.png" alt="Hustle Legend Records"></div></div></header>
+
+  <main class="wrap">
+    <section id="authPanel" class="panel">
+      <div class="eyebrow">STAFF ACCESS</div>
+      <h2>Sign in or request access</h2>
+      <div class="grid">
+        <div class="field"><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="name@example.com"></div>
+        <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+      </div>
+      <div class="field" style="margin-top:10px"><label>Display name (for new access requests)</label><input id="displayName" type="text" placeholder="Danie / DJ Nick Nasty / etc."></div>
+      <div class="toolbar"><button id="signIn" class="btn primary">SIGN IN</button><button id="requestAccess" class="btn">REQUEST ACCESS</button><a class="btn" href="../">BACK TO HLR RADIO</a></div>
+      <div id="authStatus" class="status" style="margin-top:12px">Not signed in.</div>
+      <p class="small">New users can create an account, but HLR management must activate staff access before the Control Room unlocks.</p>
+    </section>
+
+    <section id="pendingPanel" class="panel hidden">
+      <div class="eyebrow">ACCESS PENDING</div><h2>Your account exists, but HLR staff access is not active yet.</h2>
+      <p class="small">An owner or station manager must approve this account. You can safely sign out and return later.</p>
+      <button id="pendingSignOut" class="btn">SIGN OUT</button>
+    </section>
+
+    <section id="controlRoom" class="hidden">
+      <div class="panel"><div class="brandrow"><div><div class="eyebrow">SIGNED IN</div><h2 id="welcome">HLR Staff</h2><div id="roleBadge" class="badge"></div></div><div class="toolbar"><a class="btn" href="../">LISTENER VIEW</a><button id="signOut" class="btn">SIGN OUT</button></div></div></div>
+
+      <div class="split">
+        <section class="panel"><div class="eyebrow">STATION CONTROL</div><h2>Broadcast mode</h2><div id="stationStatus" class="status">Loading station state…</div><div class="grid" style="margin-top:12px"><div class="field"><label>Live title</label><input id="liveTitle" placeholder="Danie Live / Interview / Premiere"></div><div class="field"><label>Live host</label><input id="liveHost" placeholder="Danielle “Barb!3” Hein"></div></div><div class="toolbar"><button data-mode="automation" class="btn">AUTOMATION</button><button data-mode="live" class="btn primary">GO LIVE MODE</button><button data-mode="maintenance" class="btn danger">MAINTENANCE</button></div><p class="small">“Go Live Mode” changes the station state and is the control hook for the future live-audio relay. It does not yet turn this browser microphone into a public broadcast by itself.</p></section>
+
+        <section class="panel"><div class="eyebrow">STAFF</div><h2>Access management</h2><div id="staffList" class="cards"><div class="card">Loading…</div></div></section>
+      </div>
+
+      <section class="panel"><div class="eyebrow">AUDIO LIBRARY</div><h2>Upload music, drops, interviews or podcasts</h2><div class="grid3"><div class="field"><label>Title</label><input id="mediaTitle" placeholder="Episode / song / drop title"></div><div class="field"><label>Artist / host</label><input id="mediaArtist" placeholder="Mark Allen / Danie / guest"></div><div class="field"><label>Type</label><select id="mediaType"><option value="music">Music</option><option value="podcast">Podcast</option><option value="interview">Interview</option><option value="drop">Station Drop</option><option value="ad">Ad / Sponsor</option><option value="other">Other</option></select></div></div><div class="field" style="margin-top:10px"><label>Audio file</label><input id="mediaFile" type="file" accept="audio/*"></div><div class="field" style="margin-top:10px"><label>Notes</label><textarea id="mediaNotes" placeholder="Rights notes, guest info, segment description, etc."></textarea></div><div class="toolbar"><button id="uploadMedia" class="btn primary">UPLOAD TO PRIVATE HLR LIBRARY</button></div><div id="mediaStatus" class="status" style="margin-top:12px">No upload in progress.</div><div id="mediaList" class="cards" style="margin-top:14px"></div></section>
+
+      <section class="panel"><div class="eyebrow">SHOWS + PODCASTS</div><h2>Schedule programming</h2><div class="grid3"><div class="field"><label>Show title</label><input id="showTitle" placeholder="Barb!3 After Dark"></div><div class="field"><label>Host</label><input id="showHost" placeholder="Danie"></div><div class="field"><label>Type</label><select id="showPodcast"><option value="false">Radio Show</option><option value="true">Podcast</option></select></div></div><div class="grid" style="margin-top:10px"><div class="field"><label>Start</label><input id="showStart" type="datetime-local"></div><div class="field"><label>End</label><input id="showEnd" type="datetime-local"></div></div><div class="field" style="margin-top:10px"><label>Description</label><textarea id="showDescription"></textarea></div><div class="toolbar"><button id="createShow" class="btn primary">CREATE SHOW</button></div><div id="showStatus" class="status" style="margin-top:12px">Ready.</div><div id="showList" class="cards" style="margin-top:14px"></div></section>
+
+      <section class="panel"><div class="eyebrow">AUDIT TRAIL</div><h2>Recent operational activity</h2><div id="auditList" class="cards"></div></section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>

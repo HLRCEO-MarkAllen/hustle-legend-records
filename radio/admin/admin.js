@@ -3,6 +3,7 @@
 
   const SUPABASE_URL = 'https://frkzkgmmcfexudikcdef.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9';
+  const STAFF_REDIRECT = 'https://hustlelegendrecords.com/radio/admin/';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
@@ -16,8 +17,20 @@
   let currentProfile = null;
 
   function setStatus(el, message, type = '') {
+    if (!el) return;
     el.textContent = message;
     el.className = 'status' + (type ? ` ${type}` : '');
+  }
+
+  function ensureArtistReviewLink() {
+    const toolbar = controlRoom?.querySelector(':scope > .panel .brandrow .toolbar');
+    if (!toolbar || toolbar.querySelector('[data-artist-review-link]')) return;
+    const link = document.createElement('a');
+    link.className = 'btn';
+    link.href = './artists/';
+    link.textContent = 'ARTIST REVIEW QUEUE';
+    link.dataset.artistReviewLink = '1';
+    toolbar.prepend(link);
   }
 
   async function logAction(action, entityType, entityId = null, details = {}) {
@@ -55,6 +68,7 @@
     controlRoom.classList.remove('hidden');
     $('welcome').textContent = `Welcome, ${profile.display_name}`;
     $('roleBadge').textContent = profile.role.replace('_', ' ').toUpperCase();
+    ensureArtistReviewLink();
     refreshAll();
   }
 
@@ -70,11 +84,8 @@
 
     try {
       const profile = await loadProfile(currentUser);
-      if (!profile || !profile.active) {
-        showPending(profile);
-      } else {
-        showControlRoom(profile);
-      }
+      if (!profile || !profile.active) showPending(profile);
+      else showControlRoom(profile);
     } catch (error) {
       setStatus(authStatus, error.message || 'Could not load staff profile.', 'bad');
     }
@@ -83,6 +94,7 @@
   async function signIn() {
     const email = $('email').value.trim();
     const password = $('password').value;
+    if (!email || !password) return setStatus(authStatus, 'Email and password are required.', 'bad');
     setStatus(authStatus, 'Signing in…');
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return setStatus(authStatus, error.message, 'bad');
@@ -95,15 +107,18 @@
     const password = $('password').value;
     const display_name = $('displayName').value.trim() || email.split('@')[0];
     if (!email || !password) return setStatus(authStatus, 'Email and password are required.', 'bad');
-    setStatus(authStatus, 'Creating access request…');
+    setStatus(authStatus, 'Creating staff access request…');
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name } }
+      options: {
+        emailRedirectTo: STAFF_REDIRECT,
+        data: { display_name, account_type: 'staff' }
+      }
     });
     if (error) return setStatus(authStatus, error.message, 'bad');
     if (!data.session) {
-      setStatus(authStatus, 'Account created. Check your email to confirm, then return here and sign in.', 'good');
+      setStatus(authStatus, 'Account created. Confirm the email, then return here and sign in. HLR management will approve the staff role.', 'good');
       return;
     }
     await routeSession(data.session);
@@ -127,7 +142,7 @@
   }
 
   async function setStationMode(mode) {
-    if (!['owner', 'station_manager'].includes(currentProfile.role)) {
+    if (!['owner', 'station_manager'].includes(currentProfile?.role)) {
       return setStatus($('stationStatus'), 'Only an owner or station manager can change broadcast mode.', 'bad');
     }
     const payload = {
@@ -176,14 +191,13 @@
   async function playPrivate(path) {
     const { data, error } = await supabase.storage.from('hlr-radio-private').createSignedUrl(path, 300);
     if (error) return alert(error.message);
-    const w = window.open('', '_blank', 'noopener');
-    if (w) w.location.href = data.signedUrl;
+    window.open(data.signedUrl, '_blank', 'noopener');
   }
 
   async function loadMedia() {
     const { data, error } = await supabase.from('media_library').select('*').order('created_at', { ascending: false }).limit(50);
     const el = $('mediaList');
-    if (error) return el.innerHTML = `<div class="card">${error.message}</div>`;
+    if (error) return el.innerHTML = `<div class="card">${escapeHtml(error.message)}</div>`;
     el.innerHTML = data.length ? '' : '<div class="card">No Control Room uploads yet.</div>';
     data.forEach(item => {
       const card = document.createElement('div');
@@ -199,6 +213,7 @@
     if (!title) return setStatus($('showStatus'), 'Show title is required.', 'bad');
     const starts_at = $('showStart').value ? new Date($('showStart').value).toISOString() : null;
     const ends_at = $('showEnd').value ? new Date($('showEnd').value).toISOString() : null;
+    if (starts_at && ends_at && new Date(ends_at) <= new Date(starts_at)) return setStatus($('showStatus'), 'End time must be after start time.', 'bad');
     const status = starts_at ? 'scheduled' : 'draft';
     const row = {
       title,
@@ -222,7 +237,7 @@
   async function loadShows() {
     const { data, error } = await supabase.from('shows').select('*').order('starts_at', { ascending: true, nullsFirst: false }).limit(50);
     const el = $('showList');
-    if (error) return el.innerHTML = `<div class="card">${error.message}</div>`;
+    if (error) return el.innerHTML = `<div class="card">${escapeHtml(error.message)}</div>`;
     el.innerHTML = data.length ? '' : '<div class="card">No shows scheduled yet.</div>';
     data.forEach(show => {
       const card = document.createElement('div');
@@ -236,8 +251,8 @@
   async function loadStaff() {
     const { data, error } = await supabase.from('staff_profiles').select('*').order('created_at', { ascending: true });
     const el = $('staffList');
-    if (error) return el.innerHTML = `<div class="card">${error.message}</div>`;
-    el.innerHTML = '';
+    if (error) return el.innerHTML = `<div class="card">${escapeHtml(error.message)}</div>`;
+    el.innerHTML = data.length ? '' : '<div class="card">No staff profiles found.</div>';
     data.forEach(profile => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -252,7 +267,7 @@
           const { error: updateError } = await supabase.from('staff_profiles').update({ role, active: true, updated_at: new Date().toISOString() }).eq('user_id', profile.user_id);
           if (updateError) return alert(updateError.message);
           await logAction('staff_access_updated', 'staff_profiles', profile.user_id, { role, active: true });
-          loadStaff();
+          await loadStaff();
         };
         card.appendChild(tools);
       }
@@ -263,7 +278,7 @@
   async function loadAudit() {
     const { data, error } = await supabase.from('audit_log').select('*').order('created_at', { ascending: false }).limit(30);
     const el = $('auditList');
-    if (error) return el.innerHTML = `<div class="card">${error.message}</div>`;
+    if (error) return el.innerHTML = `<div class="card">${escapeHtml(error.message)}</div>`;
     el.innerHTML = data.length ? '' : '<div class="card">No logged operations yet.</div>';
     data.forEach(row => {
       const card = document.createElement('div');

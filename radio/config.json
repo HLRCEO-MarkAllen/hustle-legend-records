@@ -1,12 +1,14 @@
 {
   "stationName": "HLR Radio",
   "timezone": "America/Chicago",
-  "directFeedEnabled": false,
+  "directFeedEnabled": true,
   "directMediaBase": "/radio-media/",
   "fallback": {
     "type": "spotify-album-embed",
     "albumId": "117U2xbXj8zQxjXgxv13WI"
   },
-  "sourceStatus": "staging",
-  "sourceNote": "Direct HLR-hosted playback is wired but remains disabled until radio-safe derivatives are generated from the private 320 kbps customer archive. The private customer ZIP and masters must never be committed to the public repository."
+  "sourceStatus": "live",
+  "sourceNote": "HLR direct playback is live using dedicated 96 kbps radio derivatives. Sales-quality files and masters remain private.",
+  "radioDerivativeBitrateKbps": 96,
+  "radioTrackCount": 20
 }

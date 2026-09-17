@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>HLR Artist Gateway | Hustle Legend Records</title>
+  <meta name="description" content="The Hustle Legend Records Artist Gateway gives independent artists one place to submit music for HLR Radio, editorial, interview and licensing-readiness consideration.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#080808">
+  <link rel="canonical" href="https://hustlelegendrecords.com/artists/gateway/">
+  <link rel="icon" href="../../HLR%20Logo.png" type="image/png">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    :root{--gold:#e6b84f;--gold2:#ffe39a;--line:#4a3b21;--green:#7ee08f;--red:#ff7c7c}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,rgba(230,184,79,.12),transparent 28%),#080808;color:#eee;font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1160px,calc(100% - 28px));margin:auto}.hero{padding:48px 0 24px}.eyebrow{color:var(--gold);font-size:.74rem;font-weight:900;letter-spacing:.14em}.title{font-family:Georgia,serif;font-size:clamp(3rem,8vw,6.5rem);line-height:.9;margin:10px 0}.sub{color:#aaa;max-width:880px;line-height:1.6}.panel{border:1px solid var(--line);border-radius:20px;padding:20px;background:linear-gradient(145deg,#15110a,#090909);margin:14px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field label{font-size:.76rem;color:#bcae8b;font-weight:800}.field input,.field textarea,.field select{width:100%;padding:12px;border-radius:10px;border:1px solid #43371f;background:#0b0b0b;color:#fff}.field textarea{min-height:90px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 15px;border:1px solid #6a5226;border-radius:10px;background:#0d0b08;color:var(--gold2);font-weight:900;cursor:pointer;text-decoration:none}.btn.primary{background:var(--gold);color:#111;border-color:var(--gold)}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.status{padding:11px 13px;border-radius:10px;background:#0c0c0c;border:1px solid #2d281f;color:#bbb}.status.good{border-color:#315e3b;color:var(--green)}.status.bad{border-color:#6b2b2b;color:#ffb0b0}.hidden{display:none!important}.cards{display:grid;gap:10px}.card{padding:14px;border:1px solid #322b1d;border-radius:13px;background:#0c0b09}.card strong{color:var(--gold2)}.meta{font-size:.78rem;color:#8f8a80;margin-top:5px}.badge{display:inline-block;border:1px solid #66512b;border-radius:99px;padding:5px 9px;font-size:.72rem;color:#cfbc91}.checkgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.check{padding:10px;border:1px solid #332b1d;border-radius:10px;background:#0b0b0b}.small{font-size:.82rem;color:#969087;line-height:1.5}@media(max-width:820px){.grid,.grid3,.checkgrid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="hero"><div class="wrap"><div class="eyebrow">HUSTLE LEGEND RECORDS · INDEPENDENT ARTIST INFRASTRUCTURE</div><h1 class="title">HLR ARTIST GATEWAY</h1><p class="sub">One account. One submission hub. Radio, editorial, interviews and licensing-readiness consideration without pay-for-placement promises.</p><div class="toolbar"><a class="btn" href="../../radio/">HLR RADIO</a><a class="btn" href="../../">HLR HOME</a></div></div></header>
+
+  <main class="wrap">
+    <section id="authPanel" class="panel">
+      <div class="eyebrow">ARTIST ACCOUNT</div><h2>Sign in or create your artist gateway account</h2>
+      <div class="grid"><div class="field"><label>Email</label><input id="email" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password"></div></div>
+      <div class="grid" style="margin-top:10px"><div class="field"><label>Stage / artist name</label><input id="stageName" type="text" placeholder="Artist name"></div><div class="field"><label>Contact name</label><input id="contactName" type="text" placeholder="Optional"></div></div>
+      <div class="toolbar"><button id="signIn" class="btn primary">SIGN IN</button><button id="signUp" class="btn">CREATE ARTIST ACCOUNT</button></div>
+      <div id="authStatus" class="status" style="margin-top:12px">Not signed in.</div>
+      <p class="small">Artist accounts are separate from HLR staff accounts. Creating an account does not guarantee radio play, editorial coverage, interviews or licensing placement.</p>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <section class="panel"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><div class="eyebrow">ARTIST DASHBOARD</div><h2 id="welcome">Welcome</h2></div><div class="toolbar"><button id="signOut" class="btn">SIGN OUT</button></div></div></section>
+
+      <section class="panel"><div class="eyebrow">PROFILE</div><h2>Your artist profile</h2><div class="grid"><div class="field"><label>Stage name</label><input id="profileStage"></div><div class="field"><label>City / region</label><input id="profileRegion"></div></div><div class="field" style="margin-top:10px"><label>Bio</label><textarea id="profileBio"></textarea></div><div class="grid3" style="margin-top:10px"><div class="field"><label>Website</label><input id="profileWebsite" type="url"></div><div class="field"><label>Spotify</label><input id="profileSpotify" type="url"></div><div class="field"><label>Instagram</label><input id="profileInstagram" type="url"></div></div><div class="checkgrid"><label class="check"><input id="directoryOptIn" type="checkbox"> List me in the future HLR artist directory if approved</label></div><div class="toolbar"><button id="saveProfile" class="btn primary">SAVE PROFILE</button></div><div id="profileStatus" class="status" style="margin-top:12px">Ready.</div></section>
+
+      <section class="panel"><div class="eyebrow">SUBMIT MUSIC</div><h2>One submission can route to multiple HLR opportunities</h2><div class="grid3"><div class="field"><label>Track title</label><input id="trackTitle"></div><div class="field"><label>Release title</label><input id="releaseTitle"></div><div class="field"><label>Genre</label><input id="genre"></div></div><div class="field" style="margin-top:10px"><label>Streaming / private review link</label><input id="trackUrl" type="url" placeholder="https://..."></div><div class="field" style="margin-top:10px"><label>Or upload an audio file (private, max 50 MB)</label><input id="trackFile" type="file" accept="audio/*"></div><div class="field" style="margin-top:10px"><label>Notes / pitch</label><textarea id="submissionNotes" placeholder="Tell HLR what makes this track worth hearing."></textarea></div>
+      <div class="checkgrid"><label class="check"><input id="wantRadio" type="checkbox" checked> HLR Radio consideration</label><label class="check"><input id="wantEditorial" type="checkbox"> Editorial / review consideration</label><label class="check"><input id="wantInterview" type="checkbox"> Interview / podcast consideration</label><label class="check"><input id="wantLicensing" type="checkbox"> Licensing-readiness review</label><label class="check"><input id="masterControlled" type="checkbox"> I control / can authorize the master</label><label class="check"><input id="publishingControlled" type="checkbox"> I control / can authorize the publishing</label><label class="check"><input id="samplesCleared" type="checkbox"> Any samples are cleared, or there are no samples</label><label class="check"><input id="authorized" type="checkbox"> I am authorized to submit this recording</label><label class="check"><input id="cleanAvailable" type="checkbox"> Clean version available</label><label class="check"><input id="instrumentalAvailable" type="checkbox"> Instrumental available</label><label class="check"><input id="explicit" type="checkbox"> Explicit content</label></div>
+      <div class="toolbar"><button id="submitTrack" class="btn primary">SUBMIT TO HLR</button></div><div id="submissionStatus" class="status" style="margin-top:12px">Ready.</div></section>
+
+      <section class="panel"><div class="eyebrow">YOUR PIPELINE</div><h2>Submission status</h2><div id="submissionList" class="cards"></div></section>
+      <section class="panel"><div class="eyebrow">OPEN OPPORTUNITIES</div><h2>Current HLR opportunities</h2><div id="opportunityList" class="cards"></div></section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./gateway.js"></script>
+</body>
+</html>

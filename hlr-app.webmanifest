@@ -1,0 +1,39 @@
+{
+  "name": "Hustle Legend Records",
+  "short_name": "HLR",
+  "description": "The Hustle Legend Records independent music ecosystem: HLR Radio, catalog, stories, merch, press and licensing.",
+  "start_url": "/app/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#070707",
+  "theme_color": "#070707",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/HLR%20Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "HLR Radio",
+      "short_name": "Radio",
+      "url": "/radio/",
+      "icons": [{"src":"/HLR%20Logo.png","sizes":"512x512","type":"image/png"}]
+    },
+    {
+      "name": "20 Track Catalog",
+      "short_name": "Catalog",
+      "url": "/tracks/",
+      "icons": [{"src":"/HLR%20Logo.png","sizes":"512x512","type":"image/png"}]
+    },
+    {
+      "name": "Press Room",
+      "short_name": "Press",
+      "url": "/press/",
+      "icons": [{"src":"/HLR%20Logo.png","sizes":"512x512","type":"image/png"}]
+    }
+  ]
+}

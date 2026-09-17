@@ -1,0 +1,77 @@
+name: HLR Radio Media Ingest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hlr-radio-ingest.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hlr-radio-media-ingest
+  cancel-in-progress: false
+
+env:
+  RADIO_PACKAGE_URL: 'https://uce0998b960d1f61a8bb66b80b09.dl.dropboxusercontent.com/cd/0/get/DIUDhPAYxA7bWMV3JfDN-GD-8glz6NmFgLaK9b4cYW6wzsO1jXgKCqr9FbysEP_OezhGbtYQOwhrOaO34mcxN6X0PxyrUKts3aOn4pqCZ6y1awKj1PbfHWyOTU9EDfe2hD4xjNUZHJ3_e8eeVctYAAfw2tz-VzuPuB7J_LEFy3zraQ/file?c_luid=846e0f8a'
+  RADIO_PACKAGE_SHA256: '3905d60e68aa1b9cce48b8165b8d6f84a4153ee496f1e2b0717b5e0e48ec49d6'
+
+jobs:
+  ingest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout HLR website
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download public radio derivatives package
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 2 --connect-timeout 20 "$RADIO_PACKAGE_URL" -o /tmp/hlr-radio.zip
+          echo "$RADIO_PACKAGE_SHA256  /tmp/hlr-radio.zip" | sha256sum -c -
+
+      - name: Install the 20-track HLR radio feed
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/hlr-radio radio-media
+          mkdir -p /tmp/hlr-radio
+          unzip -q /tmp/hlr-radio.zip -d /tmp/hlr-radio
+          test "$(find /tmp/hlr-radio/radio-media -maxdepth 1 -type f -name '*.mp3' | wc -l)" -eq 20
+          cp -R /tmp/hlr-radio/radio-media ./radio-media
+          cp /tmp/hlr-radio/radio-build-manifest.json ./radio/media-manifest.json
+          cp /tmp/hlr-radio/radio-media.sha256 ./radio/media.sha256
+          test -s radio-media/01-5-years-later.mp3
+          test -s radio-media/20-sos.mp3
+
+      - name: Switch HLR Radio to direct mode
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('radio/config.json')
+          data = json.loads(p.read_text())
+          data['directFeedEnabled'] = True
+          data['sourceStatus'] = 'live'
+          data['sourceNote'] = 'HLR direct playback is live using dedicated 96 kbps radio derivatives. Sales-quality files and masters remain private.'
+          data['radioDerivativeBitrateKbps'] = 96
+          data['radioTrackCount'] = 20
+          p.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+
+      - name: Commit radio media and remove one-time ingest workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/hlr-radio-ingest.yml
+          git config user.name 'HLR Radio Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -f radio-media
+          git add radio/config.json radio/media-manifest.json radio/media.sha256 .github/workflows/hlr-radio-ingest.yml
+          git commit -m 'Launch HLR direct 20-track radio feed'
+          git push origin HEAD:main

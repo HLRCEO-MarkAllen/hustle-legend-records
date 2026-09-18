@@ -8,6 +8,8 @@
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
 
+  const ALLOWED_RADIO_AUDIO_TYPES = new Set(['audio/mpeg','audio/mp4','audio/x-m4a','audio/wav','audio/x-wav','audio/flac','audio/ogg']);
+
   const $ = (id) => document.getElementById(id);
   const authPanel = $('authPanel');
   const pendingPanel = $('pendingPanel');
@@ -163,29 +165,52 @@
     const file = $('mediaFile').files?.[0];
     const title = $('mediaTitle').value.trim();
     if (!file || !title) return setStatus($('mediaStatus'), 'Title and audio file are required.', 'bad');
+    if (file.size > 50 * 1024 * 1024) return setStatus($('mediaStatus'), 'Audio upload exceeds the 50 MB limit.', 'bad');
+    if (file.type && !ALLOWED_RADIO_AUDIO_TYPES.has(file.type)) {
+      return setStatus($('mediaStatus'), 'Unsupported audio format. Use MP3, WAV, M4A/MP4, OGG, or FLAC.', 'bad');
+    }
+
     setStatus($('mediaStatus'), 'Uploading private audio…');
     const safe = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
     const path = `${currentUser.id}/${Date.now()}-${safe}`;
-    const { error: uploadError } = await supabase.storage.from('hlr-radio-private').upload(path, file, { upsert: false });
-    if (uploadError) return setStatus($('mediaStatus'), uploadError.message, 'bad');
+    let uploaded = false;
 
-    const row = {
-      title,
-      artist_or_host: $('mediaArtist').value.trim() || null,
-      media_type: $('mediaType').value,
-      storage_path: path,
-      notes: $('mediaNotes').value.trim() || null,
-      uploaded_by: currentUser.id
-    };
-    const { data, error } = await supabase.from('media_library').insert(row).select().single();
-    if (error) return setStatus($('mediaStatus'), error.message, 'bad');
-    await logAction('media_uploaded', 'media_library', data.id, { title, media_type: row.media_type });
-    setStatus($('mediaStatus'), 'Audio added to the private HLR library.', 'good');
-    $('mediaTitle').value = '';
-    $('mediaArtist').value = '';
-    $('mediaNotes').value = '';
-    $('mediaFile').value = '';
-    await loadMedia();
+    try {
+      const { error: uploadError } = await supabase.storage.from('hlr-radio-private').upload(path, file, { upsert: false });
+      if (uploadError) throw uploadError;
+      uploaded = true;
+
+      const row = {
+        title,
+        artist_or_host: $('mediaArtist').value.trim() || null,
+        media_type: $('mediaType').value,
+        storage_path: path,
+        notes: $('mediaNotes').value.trim() || null,
+        uploaded_by: currentUser.id
+      };
+      const { data, error } = await supabase.from('media_library').insert(row).select().single();
+      if (error) throw error;
+
+      await logAction('media_uploaded', 'media_library', data.id, { title, media_type: row.media_type });
+      setStatus($('mediaStatus'), 'Audio added to the private HLR library.', 'good');
+      $('mediaTitle').value = '';
+      $('mediaArtist').value = '';
+      $('mediaNotes').value = '';
+      $('mediaFile').value = '';
+      await loadMedia();
+    } catch (error) {
+      let cleanupFailed = false;
+      if (uploaded) {
+        try {
+          const { error: cleanupError } = await supabase.storage.from('hlr-radio-private').remove([path]);
+          if (cleanupError) cleanupFailed = true;
+        } catch (_cleanup) {
+          cleanupFailed = true;
+        }
+      }
+      const message = error.message || 'Private audio upload failed.';
+      setStatus($('mediaStatus'), cleanupFailed ? `${message} The uploaded file could not be cleaned up automatically; review private storage.` : message, 'bad');
+    }
   }
 
   async function playPrivate(path) {

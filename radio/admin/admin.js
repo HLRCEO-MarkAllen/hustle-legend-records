@@ -282,10 +282,10 @@
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<strong>${escapeHtml(profile.display_name)}</strong><div class="meta">${escapeHtml(profile.role)} · ${profile.active ? 'ACTIVE' : 'PENDING'}</div>`;
-      if (['owner', 'station_manager'].includes(currentProfile.role) && profile.user_id !== currentUser.id) {
+      if (currentProfile.role === 'owner' && profile.user_id !== currentUser.id) {
         const tools = document.createElement('div');
         tools.className = 'toolbar';
-        tools.innerHTML = `<select data-role style="padding:9px;border-radius:8px;background:#0b0b0b;color:#fff;border:1px solid #43371f"><option value="station_manager">Station Manager</option><option value="dj">DJ</option><option value="contributor">Contributor</option></select><button class="btn primary" data-approve>${profile.active ? 'UPDATE ROLE' : 'APPROVE'}</button>`;
+        tools.innerHTML = `<select data-role style="padding:9px;border-radius:8px;background:#0b0b0b;color:#fff;border:1px solid #43371f"><option value="station_manager">Station Manager</option><option value="a_and_r">A&amp;R</option><option value="artist_relations">Artist Relations</option><option value="dj">DJ</option><option value="contributor">Contributor</option></select><button class="btn primary" data-approve>${profile.active ? 'UPDATE ROLE' : 'APPROVE'}</button>`;
         tools.querySelector('[data-role]').value = profile.role === 'owner' ? 'station_manager' : profile.role;
         tools.querySelector('[data-approve]').onclick = async () => {
           const role = tools.querySelector('[data-role]').value;

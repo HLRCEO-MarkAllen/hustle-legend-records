@@ -79,15 +79,17 @@
     if(!url&&!file)return set($('submissionStatus'),'Add a review link or upload an audio file.','bad');
     if(!$('authorized').checked)return set($('submissionStatus'),'You must confirm that you are authorized to submit this recording.','bad');
     if(!$('termsAccepted')?.checked)return set($('submissionStatus'),'You must accept the HLR Artist Gateway Submission Terms before submitting.','bad');
-    let storage_path=null;
+    let storage_path=null,uploaded=false;
     try{
       set($('submissionStatus'),'Preparing submission…');
       if(file){
         if(file.size>50*1024*1024)throw new Error('Audio upload exceeds the 50 MB limit.');
+        if(file.type&&!ALLOWED_AUDIO_TYPES.has(file.type))throw new Error('Unsupported audio format. Use MP3, WAV, M4A/MP4, AAC, OGG, or FLAC.');
         const safe=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');
         storage_path=`${user.id}/${Date.now()}-${safe}`;
         const {error:upErr}=await sb.storage.from('hlr-artist-submissions').upload(storage_path,file,{upsert:false});
         if(upErr)throw upErr;
+        uploaded=true;
       }
       const row={artist_user_id:user.id,artist_name:profile.stage_name,track_title:title,release_title:$('releaseTitle').value.trim()||null,track_url:url||null,genre:$('genre').value.trim()||null,explicit:$('explicit').checked,notes:$('submissionNotes').value.trim()||null,wants_radio:$('wantRadio').checked,wants_editorial:$('wantEditorial').checked,wants_interview:$('wantInterview').checked,wants_licensing:$('wantLicensing').checked,master_controlled:$('masterControlled').checked,publishing_controlled:$('publishingControlled').checked,samples_cleared:$('samplesCleared').checked,authorized_to_submit:true,clean_available:$('cleanAvailable').checked,instrumental_available:$('instrumentalAvailable').checked,storage_path,status:'submitted',terms_version:'2026-09-17',terms_accepted_at:new Date().toISOString()};
       const {error}=await sb.from('artist_submissions').insert(row);
@@ -95,7 +97,14 @@
       set($('submissionStatus'),'Submitted to HLR. Your dashboard will show each status change.','good');
       ['trackTitle','releaseTitle','genre','trackUrl','submissionNotes'].forEach(id=>$(id).value='');$('trackFile').value='';$('termsAccepted').checked=false;
       await loadSubmissions();
-    }catch(e){set($('submissionStatus'),e.message||'Submission failed.','bad');}
+    }catch(e){
+      let cleanupFailed=false;
+      if(uploaded&&storage_path){
+        try{const {error:cleanupError}=await sb.storage.from('hlr-artist-submissions').remove([storage_path]);if(cleanupError)cleanupFailed=true;}catch(_cleanup){cleanupFailed=true;}
+      }
+      const message=e.message||'Submission failed.';
+      set($('submissionStatus'),cleanupFailed?`${message} The uploaded review file could not be cleaned up automatically; contact HLR support.`:message,'bad');
+    }
   }
 
   async function loadSubmissions(){

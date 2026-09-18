@@ -7,6 +7,7 @@
   let user=null,profile=null;
   const set=(el,msg,type='')=>{el.textContent=msg;el.className='status'+(type?` ${type}`:'')};
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const ALLOWED_AUDIO_TYPES=new Set(['audio/mpeg','audio/wav','audio/x-wav','audio/mp4','audio/aac','audio/ogg','audio/flac']);
 
   function ensureTermsControl(){
     if($('termsAccepted')) return;

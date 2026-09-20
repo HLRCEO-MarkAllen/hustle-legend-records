@@ -174,6 +174,7 @@ th{color:#8d8da0;font-weight:700}
         <button class="navbtn" data-page="meetings">◷ Meetings</button>
         <button class="navbtn" data-page="analytics">⌁ Analytics</button>
         <button class="navbtn" data-page="radio">◉ Radio</button>
+        <button class="navbtn" data-page="communications">✉ Communications</button>
       </div>
       <div class="navgroup">
         <div class="navlabel">Company</div>
@@ -244,6 +245,18 @@ th{color:#8d8da0;font-weight:700}
         <div class="notice">Radio stays on the same Supabase backend as HQ, so we are not creating a second paid stack.</div>
       </section>
 
+      <section id="page-communications" class="page hidden">
+        <div class="hero"><div><h1>Communications</h1><p>HLR business email activity for sync, radio, press, distribution and operations.</p></div></div>
+        <div class="notice" style="margin-bottom:14px"><strong>Connected workflow:</strong> relevant Gmail activity is tracked here so follow-ups do not disappear into the inbox.</div>
+        <div class="grid kpis">
+          <div class="card kpi"><div class="label">Tracked messages</div><div class="value" id="commsTotal">—</div><div class="foot">Business-relevant email</div></div>
+          <div class="card kpi"><div class="label">Waiting</div><div class="value" id="commsWaiting">—</div><div class="foot">Replies / outcomes pending</div></div>
+          <div class="card kpi"><div class="label">Follow-up</div><div class="value" id="commsFollowup">—</div><div class="foot">Needs action</div></div>
+          <div class="card kpi"><div class="label">Closed</div><div class="value" id="commsClosed">—</div><div class="foot">Finished threads</div></div>
+        </div>
+        <div class="card section"><div id="commsList" class="list"></div></div>
+      </section>
+
       <section id="page-artists" class="page hidden">
         <div class="hero">
           <div><h1>Artist Onboarding</h1><p>One workflow from prospect to release-ready. HLR rules stay consistent for everyone.</p></div>
@@ -284,6 +297,7 @@ th{color:#8d8da0;font-weight:700}
     <button class="active" data-page="dashboard">⌂<br>Home</button>
     <button data-page="tasks">✓<br>Tasks</button>
     <button data-page="opportunities">◎<br>Opps</button>
+    <button data-page="communications">✉<br>Comms</button>
     <button data-page="artists">★<br>Artists</button>
     <button data-page="team">♟<br>Team</button>
     <button data-page="compensation">$<br>Pay</button>
@@ -398,10 +412,11 @@ async function loadAll(){
     supabase.from('hq_comp_cycles').select('*').order('created_at',{ascending:false}).limit(20),
     supabase.from('hq_comp_allocations').select('*').order('created_at',{ascending:false}).limit(50),
     supabase.from('hq_artists').select('*').order('created_at',{ascending:false}),
-    supabase.from('hq_artist_onboarding_steps').select('*').order('sort_order',{ascending:true})
+    supabase.from('hq_artist_onboarding_steps').select('*').order('sort_order',{ascending:true}),
+    supabase.from('hq_communications').select('*').order('occurred_at',{ascending:false}).limit(100)
   ];
   const r=await Promise.all(queries);
-  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[],artists:r[16].data||[],artistSteps:r[17].data||[]};
+  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[],artists:r[16].data||[],artistSteps:r[17].data||[],communications:r[18].data||[]};
   render();
   if(staff.role==='owner') loadAccessRequests();
 }
@@ -418,7 +433,7 @@ function render(){
   $('#pipelineList').innerHTML=(cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).slice(0,6).map(x=>rowHtml(x.title,(x.opportunity_type||'opportunity')+(x.next_action?' · '+x.next_action:''),badge(x.stage))).join('')||empty('No active opportunities.'));
   $('#meetingList').innerHTML=(cache.meetings.filter(x=>new Date(x.ends_at)>new Date()).slice(0,5).map(x=>rowHtml(x.title,fmt(x.starts_at),badge(x.status))).join('')||empty('No upcoming meetings.'));
 
-  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderArtists();renderTeam();renderComp();renderActivity();renderRadio();
+  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderCommunications();renderArtists();renderTeam();renderComp();renderActivity();renderRadio();
 }
 function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
 
@@ -443,6 +458,26 @@ function renderMeetings(){
 function renderKpis(){
   $('#kpiTable').innerHTML=cache.kpis.length?'<div class="tablewrap"><table><thead><tr><th>Source</th><th>Metric</th><th>Value</th><th>Previous</th><th>Period</th><th>Date</th></tr></thead><tbody>'+cache.kpis.map(x=>'<tr><td>'+esc(x.source)+'</td><td>'+esc(x.metric)+'</td><td>'+esc(x.value)+'</td><td>'+esc(x.previous_value??'—')+'</td><td>'+esc(x.period||'—')+'</td><td>'+esc(x.snapshot_date)+'</td></tr>').join('')+'</tbody></table></div>':empty('No KPI snapshots yet.');
 }
+function renderCommunications(){
+  const c=cache.communications||[];
+  $('#commsTotal').textContent=c.length;
+  $('#commsWaiting').textContent=c.filter(x=>x.status==='waiting').length;
+  $('#commsFollowup').textContent=c.filter(x=>x.status==='follow_up').length;
+  $('#commsClosed').textContent=c.filter(x=>x.status==='closed').length;
+  $('#commsList').innerHTML=c.length?c.map(x=>{
+    const who=x.direction==='inbound'?(x.from_address||'Inbound'):(x.to_addresses||[]).join(', ');
+    const controls='<select style="width:auto;min-width:112px" onchange="window.setCommStatus(\''+x.id+'\',this.value)">'+
+      ['new','follow_up','waiting','closed','info'].map(s=>'<option value="'+s+'" '+(s===x.status?'selected':'')+'>'+s.replaceAll('_',' ')+'</option>').join('')+
+      '</select>';
+    const link=x.display_url?'<a class="btn" href="'+esc(x.display_url)+'" target="_blank" rel="noopener">Open email</a>':'';
+    return '<div class="row"><div><strong>'+esc(x.subject)+'</strong><div class="meta">'+esc(x.direction)+' · '+esc(x.category)+' · '+esc(who)+' · '+esc(fmt(x.occurred_at))+'</div><div class="meta" style="margin-top:6px">'+esc(x.snippet||'')+'</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+badge(x.status)+controls+link+'</div></div>';
+  }).join(''):empty('No communications tracked yet.');
+}
+window.setCommStatus=async(id,status)=>{
+  const {error}=await supabase.from('hq_communications').update({status}).eq('id',id);
+  if(error)alert(error.message);else{await log('communication_status','Communication marked '+status,'communication',id);loadAll()}
+};
+
 function renderArtists(){
   const canCreate=['owner','a_and_r'].includes(staff?.role);
   if($('#newArtistBtn')) $('#newArtistBtn').style.display=canCreate?'inline-block':'none';

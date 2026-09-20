@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>HLR HQ — Hustle Legend Records</title>
+<meta name="theme-color" content="#0b0b10"/>
+<style>
+:root{
+  --bg:#09090c;--panel:#111118;--panel2:#171722;--line:#28283a;--text:#f5f5f7;--muted:#9b9bad;
+  --gold:#d7af45;--gold2:#f0d278;--danger:#ff5f6d;--ok:#54d39a;--warn:#f3b95f;--blue:#6ea8fe;
+  --shadow:0 16px 40px rgba(0,0,0,.34)
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,#09090c 0,#0d0d13 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.hidden{display:none!important}
+.shell{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;height:64px;background:rgba(9,9,12,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 16px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.04em}
+.logo{width:36px;height:36px;border:1px solid #7c6428;border-radius:11px;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,#5e4b1f,#17130b 55%,#0a0a0d);color:var(--gold2);font-weight:1000}
+.brand small{display:block;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.14em}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.pill{border:1px solid var(--line);background:var(--panel);padding:7px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:9px 11px}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{border-right:1px solid var(--line);padding:18px 12px;background:rgba(13,13,18,.88);position:sticky;top:64px;height:calc(100vh - 64px);overflow:auto}
+.navgroup{margin-bottom:18px}
+.navlabel{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#77778a;padding:8px 10px}
+.navbtn{width:100%;text-align:left;border:0;background:transparent;color:#c9c9d2;padding:10px 12px;border-radius:10px;margin:2px 0}
+.navbtn:hover,.navbtn.active{background:#1a1a24;color:#fff}
+.navbtn.active{box-shadow:inset 3px 0 0 var(--gold)}
+.main{padding:22px;max-width:1500px;width:100%}
+.hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:20px}
+.hero h1{margin:0;font-size:30px;letter-spacing:-.035em}
+.hero p{margin:6px 0 0;color:var(--muted)}
+.gold{color:var(--gold2)}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px}
+.card{background:linear-gradient(180deg,var(--panel),#0f0f16);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.kpi{padding:16px}
+.kpi .label{color:var(--muted);font-size:12px}
+.kpi .value{font-size:28px;font-weight:900;margin-top:6px}
+.kpi .foot{font-size:11px;color:#77778a;margin-top:5px}
+.two{grid-template-columns:1.2fr .8fr}
+.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.section{padding:16px}
+.section h3{margin:0 0 12px;font-size:15px}
+.list{display:grid;gap:9px}
+.row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid #222231;border-radius:12px;background:#0d0d13}
+.row .meta{color:var(--muted);font-size:12px;margin-top:3px}
+.badge{display:inline-flex;align-items:center;border:1px solid #323246;border-radius:999px;padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#c7c7d2}
+.badge.high,.badge.urgent{border-color:#6e343b;color:#ff9ea8}
+.badge.active,.badge.completed,.badge.accepted,.badge.approved{border-color:#2b674e;color:#78e4b2}
+.badge.waiting,.badge.todo,.badge.pending{border-color:#6e562c;color:#f2c86b}
+.badge.in_progress,.badge.interested,.badge.pitched{border-color:#35537a;color:#88b9ff}
+.btn{border:1px solid var(--line);background:#1a1a24;color:#fff;border-radius:10px;padding:9px 12px;font-weight:700}
+.btn.primary{background:linear-gradient(180deg,#e0ba54,#b18c2c);color:#151109;border-color:#e7c464}
+.btn.danger{border-color:#6f3238;color:#ff9da6;background:#251216}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+input,select,textarea{width:100%;background:#0b0b10;color:#fff;border:1px solid #2a2a3a;border-radius:10px;padding:10px 11px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#7f6831;box-shadow:0 0 0 3px rgba(215,175,69,.08)}
+textarea{min-height:90px;resize:vertical}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.full{grid-column:1/-1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:18px;z-index:50}
+.modalbox{width:min(680px,100%);max-height:90vh;overflow:auto;background:#111118;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.modalhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.modalhead h3{margin:0}
+.loginwrap{min-height:100vh;display:grid;place-items:center;padding:22px}
+.login{width:min(440px,100%);padding:24px}
+.login h1{margin:0 0 7px;font-size:28px}
+.login p{color:var(--muted);margin:0 0 18px}
+.stack{display:grid;gap:10px}
+.statusbar{font-size:12px;color:var(--muted);margin-top:8px}
+.mobilebar{display:none}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed #303044;border-radius:12px}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 8px;border-bottom:1px solid #222231;text-align:left;font-size:12px;white-space:nowrap}
+th{color:#8d8da0;font-weight:700}
+.notice{padding:12px;border:1px solid #4f4628;background:#1a170e;border-radius:12px;color:#dbc77a;font-size:13px}
+@media(max-width:900px){
+ .layout{grid-template-columns:1fr}
+ .sidebar{display:none}
+ .main{padding:14px 12px 80px}
+ .kpis,.two,.three,.formgrid{grid-template-columns:1fr 1fr}
+ .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(11,11,16,.95);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
+ .mobilebar button{flex:1;border:0;background:transparent;color:#a7a7b5;font-size:11px;padding:7px 3px}
+ .mobilebar button.active{color:var(--gold2)}
+}
+@media(max-width:560px){
+ .kpis,.two,.three,.formgrid{grid-template-columns:1fr}
+ .hero{align-items:flex-start;flex-direction:column}
+ .topbar{height:58px}
+ .layout{min-height:calc(100vh - 58px)}
+ .brand span{font-size:13px}
+ .pill{display:none}
+}
+</style>
+</head>
+<body>
+<div id="authView" class="loginwrap">
+  <div class="card login">
+    <div class="brand" style="margin-bottom:18px"><div class="logo">HLR</div><div><span>HUSTLE LEGEND RECORDS</span><small>HQ COMMAND CENTER</small></div></div>
+    <h1>HLR HQ</h1>
+    <p>Private operations hub for the Hustle Legend Records team.</p>
+    <div class="stack">
+      <input id="email" type="email" placeholder="Email"/>
+      <input id="password" type="password" placeholder="Password"/>
+      <button class="btn primary" id="signInBtn">Sign in</button>
+      <button class="btn" id="signUpBtn">Create team account</button>
+      <div id="authStatus" class="statusbar"></div>
+    </div>
+  </div>
+</div>
+
+<div id="pendingView" class="loginwrap hidden">
+  <div class="card login">
+    <div class="brand" style="margin-bottom:18px"><div class="logo">HLR</div><div><span>HUSTLE LEGEND RECORDS</span><small>ACCESS CONTROL</small></div></div>
+    <h1>Request HQ access</h1>
+    <p>Your account exists, but it is not active HLR staff yet. Submit your info for owner approval.</p>
+    <div class="stack">
+      <input id="reqName" placeholder="Full name / team name"/>
+      <select id="reqRole">
+        <option value="contributor">Team / Contributor</option>
+        <option value="station_manager">Radio & Image</option>
+        <option value="a_and_r">A&R</option>
+        <option value="artist_relations">Artist Relations</option>
+      </select>
+      <button class="btn primary" id="requestBtn">Request access</button>
+      <button class="btn" id="pendingSignOut">Sign out</button>
+      <div id="requestStatus" class="statusbar"></div>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="shell hidden">
+  <div class="topbar">
+    <div class="brand"><div class="logo">HLR</div><div><span>HLR HQ</span><small>HUSTLE LEGEND RECORDS</small></div></div>
+    <div class="top-actions">
+      <span class="pill" id="rolePill">Staff</span>
+      <button class="iconbtn" id="refreshBtn">↻</button>
+      <button class="iconbtn" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="navgroup">
+        <div class="navlabel">Command</div>
+        <button class="navbtn active" data-page="dashboard">⌂ Dashboard</button>
+        <button class="navbtn" data-page="tasks">✓ Tasks</button>
+        <button class="navbtn" data-page="projects">◫ Projects</button>
+        <button class="navbtn" data-page="opportunities">◎ Opportunities</button>
+      </div>
+      <div class="navgroup">
+        <div class="navlabel">Operations</div>
+        <button class="navbtn" data-page="rights">♬ Rights Vault</button>
+        <button class="navbtn" data-page="meetings">◷ Meetings</button>
+        <button class="navbtn" data-page="analytics">⌁ Analytics</button>
+        <button class="navbtn" data-page="radio">◉ Radio</button>
+      </div>
+      <div class="navgroup">
+        <div class="navlabel">Company</div>
+        <button class="navbtn" data-page="team">♟ Team</button>
+        <button class="navbtn" data-page="activity">↯ Activity</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="page-dashboard" class="page">
+        <div class="hero"><div><h1>Command Center</h1><p id="welcome">Hustle Legend Records operations at a glance.</p></div><button class="btn primary" onclick="openQuickTask()">+ Quick task</button></div>
+        <div class="grid kpis">
+          <div class="card kpi"><div class="label">Open tasks</div><div class="value" id="kpiTasks">—</div><div class="foot">Todo + in progress + waiting</div></div>
+          <div class="card kpi"><div class="label">Active projects</div><div class="value" id="kpiProjects">—</div><div class="foot">Current label initiatives</div></div>
+          <div class="card kpi"><div class="label">Open opportunities</div><div class="value" id="kpiOpps">—</div><div class="foot">Sync, radio, press & more</div></div>
+          <div class="card kpi"><div class="label">Team active</div><div class="value" id="kpiTeam">—</div><div class="foot">Approved HQ users</div></div>
+        </div>
+        <div class="grid two">
+          <div class="card section"><h3>Priority queue</h3><div id="priorityList" class="list"></div></div>
+          <div class="card section"><h3>Latest alerts</h3><div id="alertList" class="list"></div></div>
+        </div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card section"><h3>Pipeline</h3><div id="pipelineList" class="list"></div></div>
+          <div class="card section"><h3>Upcoming meetings</h3><div id="meetingList" class="list"></div></div>
+        </div>
+      </section>
+
+      <section id="page-tasks" class="page hidden">
+        <div class="hero"><div><h1>Tasks</h1><p>Daily execution, approvals and accountability.</p></div><button class="btn primary" onclick="openTaskModal()">+ New task</button></div>
+        <div class="card section"><div id="tasksTable"></div></div>
+      </section>
+
+      <section id="page-projects" class="page hidden">
+        <div class="hero"><div><h1>Projects</h1><p>Releases, campaigns, infrastructure and company initiatives.</p></div><button class="btn primary" onclick="openProjectModal()">+ New project</button></div>
+        <div id="projectsGrid" class="grid three"></div>
+      </section>
+
+      <section id="page-opportunities" class="page hidden">
+        <div class="hero"><div><h1>Opportunities</h1><p>Track sync, radio, press, playlists, podcasts, collaborations and deals.</p></div><button class="btn primary" onclick="openOpportunityModal()">+ New opportunity</button></div>
+        <div class="card section"><div id="oppsTable"></div></div>
+      </section>
+
+      <section id="page-rights" class="page hidden">
+        <div class="hero"><div><h1>Rights Vault</h1><p>Masters, publishing, identifiers, registrations and clearance flags.</p></div><button class="btn primary" onclick="openRightsModal()">+ Add rights record</button></div>
+        <div class="card section"><div id="rightsTable"></div></div>
+      </section>
+
+      <section id="page-meetings" class="page hidden">
+        <div class="hero"><div><h1>Meetings</h1><p>Internal business meetings, agendas, decisions and follow-up.</p></div><button class="btn primary" onclick="openMeetingModal()">+ Schedule meeting</button></div>
+        <div id="meetingsGrid" class="grid two"></div>
+      </section>
+
+      <section id="page-analytics" class="page hidden">
+        <div class="hero"><div><h1>Analytics</h1><p>Manual and connected KPI snapshots across HLR.</p></div><button class="btn primary" onclick="openKpiModal()">+ Add KPI</button></div>
+        <div class="card section"><div id="kpiTable"></div></div>
+      </section>
+
+      <section id="page-radio" class="page hidden">
+        <div class="hero"><div><h1>HLR Radio Control</h1><p>Existing radio backend status, media, shows and artist opportunities.</p></div></div>
+        <div class="grid kpis">
+          <div class="card kpi"><div class="label">Station mode</div><div class="value" id="radioMode">—</div></div>
+          <div class="card kpi"><div class="label">Shows</div><div class="value" id="radioShows">—</div></div>
+          <div class="card kpi"><div class="label">Media items</div><div class="value" id="radioMedia">—</div></div>
+          <div class="card kpi"><div class="label">Artist opportunities</div><div class="value" id="radioOpps">—</div></div>
+        </div>
+        <div class="notice">Radio stays on the same Supabase backend as HQ, so we are not creating a second paid stack.</div>
+      </section>
+
+      <section id="page-team" class="page hidden">
+        <div class="hero"><div><h1>Team</h1><p>Roles, access status and staff approvals.</p></div></div>
+        <div id="teamGrid" class="grid two"></div>
+        <div id="accessRequestsBox" class="card section hidden" style="margin-top:14px"><h3>Pending access requests</h3><div id="accessRequests"></div></div>
+      </section>
+
+      <section id="page-activity" class="page hidden">
+        <div class="hero"><div><h1>Activity</h1><p>Operational audit trail.</p></div></div>
+        <div class="card section"><div id="activityList" class="list"></div></div>
+      </section>
+    </main>
+  </div>
+  <div class="mobilebar">
+    <button class="active" data-page="dashboard">⌂<br>Home</button>
+    <button data-page="tasks">✓<br>Tasks</button>
+    <button data-page="opportunities">◎<br>Opps</button>
+    <button data-page="team">♟<br>Team</button>
+    <button data-page="rights">♬<br>Rights</button>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden">
+  <div class="modalbox">
+    <div class="modalhead"><h3 id="modalTitle">New item</h3><button class="iconbtn" onclick="closeModal()">✕</button></div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
+const supabase=createClient('https://frkzkgmmcfexudikcdef.supabase.co','sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9');
+let session=null, staff=null, cache={};
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=(v='')=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const fmt=d=>d?new Date(d).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—';
+const badge=v=>'<span class="badge '+esc(v||'')+'">'+esc((v||'').replaceAll('_',' '))+'</span>';
+const empty=t=>'<div class="empty">'+esc(t)+'</div>';
+
+async function log(action,summary,linked_type=null,linked_id=null){
+  if(!session||!staff)return;
+  await supabase.from('hq_activity').insert({actor_name:staff.display_name||staff.name||'HLR Staff',department:staff.role,action,summary,linked_type,linked_id});
+}
+
+function setStatus(id,msg,ok=false){const el=$(id);el.textContent=msg;el.style.color=ok?'#72daa9':'#9b9bad'}
+
+async function signIn(){
+  setStatus('#authStatus','Signing in…');
+  const {error}=await supabase.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});
+  if(error) return setStatus('#authStatus',error.message);
+}
+async function signUp(){
+  setStatus('#authStatus','Creating account…');
+  const {data,error}=await supabase.auth.signUp({email:$('#email').value.trim(),password:$('#password').value});
+  if(error)return setStatus('#authStatus',error.message);
+  setStatus('#authStatus',data.session?'Account created.':'Account created. Check your email if confirmation is required.',true);
+}
+async function signOut(){await supabase.auth.signOut()}
+
+$('#signInBtn').onclick=signIn; $('#signUpBtn').onclick=signUp; $('#signOutBtn').onclick=signOut; $('#pendingSignOut').onclick=signOut; $('#refreshBtn').onclick=()=>loadAll();
+
+async function handleSession(s){
+  session=s;
+  if(!s){
+    $('#authView').classList.remove('hidden');$('#pendingView').classList.add('hidden');$('#appView').classList.add('hidden');return;
+  }
+  const {data:sp}=await supabase.from('staff_profiles').select('*').eq('user_id',s.user.id).maybeSingle();
+  if(!sp||!sp.active){
+    staff=null;$('#authView').classList.add('hidden');$('#appView').classList.add('hidden');$('#pendingView').classList.remove('hidden');
+    const {data:req}=await supabase.from('hq_access_requests').select('*').eq('user_id',s.user.id).maybeSingle();
+    $('#reqName').value=req?.full_name||s.user.user_metadata?.full_name||'';
+    setStatus('#requestStatus',req?'Request status: '+req.status:'');
+    return;
+  }
+  staff=sp;
+  $('#authView').classList.add('hidden');$('#pendingView').classList.add('hidden');$('#appView').classList.remove('hidden');
+  $('#rolePill').textContent=(sp.role||'staff').replaceAll('_',' ').toUpperCase();
+  $('#welcome').textContent='Welcome back, '+(sp.display_name||'HLR Staff')+'.';
+  await loadAll();
+}
+$('#requestBtn').onclick=async()=>{
+  const payload={user_id:session.user.id,email:session.user.email,full_name:$('#reqName').value.trim(),requested_role:$('#reqRole').value};
+  const {error}=await supabase.from('hq_access_requests').upsert(payload,{onConflict:'user_id'});
+  setStatus('#requestStatus',error?error.message:'Access request submitted to HLR owner.',!error);
+};
+
+supabase.auth.onAuthStateChange((_e,s)=>handleSession(s));
+const {data:{session:initial}}=await supabase.auth.getSession(); await handleSession(initial);
+
+function nav(page){
+  $$('.page').forEach(x=>x.classList.add('hidden')); $('#page-'+page)?.classList.remove('hidden');
+  $$('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+}
+$$('[data-page]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
+
+async function loadAll(){
+  const queries=[
+    supabase.from('hq_tasks').select('*').order('due_at',{ascending:true,nullsFirst:false}),
+    supabase.from('hq_projects').select('*').order('updated_at',{ascending:false}),
+    supabase.from('hq_opportunities').select('*').order('updated_at',{ascending:false}),
+    supabase.from('hq_team').select('*').order('name'),
+    supabase.from('hq_rights').select('*').order('updated_at',{ascending:false}),
+    supabase.from('hq_meetings').select('*').order('starts_at',{ascending:true}),
+    supabase.from('hq_kpis').select('*').order('snapshot_date',{ascending:false}),
+    supabase.from('hq_alerts').select('*').order('created_at',{ascending:false}).limit(20),
+    supabase.from('hq_activity').select('*').order('occurred_at',{ascending:false}).limit(40),
+    supabase.from('station_state').select('*').limit(1),
+    supabase.from('shows').select('id'),
+    supabase.from('media_library').select('id'),
+    supabase.from('artist_opportunities').select('id')
+  ];
+  const r=await Promise.all(queries);
+  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[]};
+  render();
+  if(staff.role==='owner') loadAccessRequests();
+}
+
+function render(){
+  const openTasks=cache.tasks.filter(x=>!['completed','cancelled'].includes(x.status));
+  $('#kpiTasks').textContent=openTasks.length;
+  $('#kpiProjects').textContent=cache.projects.filter(x=>['active','planned','waiting','blocked'].includes(x.status)).length;
+  $('#kpiOpps').textContent=cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).length;
+  $('#kpiTeam').textContent=cache.team.filter(x=>x.access_status==='active').length;
+
+  $('#priorityList').innerHTML=(openTasks.filter(x=>['urgent','high'].includes(x.priority)).slice(0,6).map(x=>rowHtml(x.title,(x.assignee_name||'Unassigned')+' · '+(x.due_at?fmt(x.due_at):'No due date'),badge(x.priority))).join('')||empty('No high-priority tasks.'));
+  $('#alertList').innerHTML=(cache.alerts.slice(0,6).map(x=>rowHtml(x.title,x.body||'',badge(x.priority))).join('')||empty('No alerts yet.'));
+  $('#pipelineList').innerHTML=(cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).slice(0,6).map(x=>rowHtml(x.title,(x.opportunity_type||'opportunity')+(x.next_action?' · '+x.next_action:''),badge(x.stage))).join('')||empty('No active opportunities.'));
+  $('#meetingList').innerHTML=(cache.meetings.filter(x=>new Date(x.ends_at)>new Date()).slice(0,5).map(x=>rowHtml(x.title,fmt(x.starts_at),badge(x.status))).join('')||empty('No upcoming meetings.'));
+
+  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderTeam();renderActivity();renderRadio();
+}
+function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
+
+function renderTasks(){
+  if(!cache.tasks.length){$('#tasksTable').innerHTML=empty('No tasks yet.');return}
+  $('#tasksTable').innerHTML='<div class="tablewrap"><table><thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead><tbody>'+cache.tasks.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.assignee_name||'—')+'</td><td>'+badge(x.status)+'</td><td>'+badge(x.priority)+'</td><td>'+esc(fmt(x.due_at))+'</td><td><button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\''+(x.status==='completed'?'todo':'completed')+'\')">'+(x.status==='completed'?'Reopen':'Complete')+'</button></td></tr>').join('')+'</tbody></table></div>';
+}
+window.setTaskStatus=async(id,status)=>{await supabase.from('hq_tasks').update({status}).eq('id',id);await log('task_updated','Task marked '+status,'task',id);loadAll()};
+
+function renderProjects(){
+  $('#projectsGrid').innerHTML=cache.projects.length?cache.projects.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+esc(x.title)+'</strong>'+badge(x.status)+'</div><p style="color:var(--muted);font-size:13px">'+esc(x.description||'')+'</p><div class="meta">'+esc(x.category||'')+' · '+esc(x.priority||'')+'</div><div style="height:7px;background:#242433;border-radius:999px;margin-top:12px;overflow:hidden"><div style="height:100%;width:'+Number(x.progress_percent||0)+'%;background:linear-gradient(90deg,#9a7727,#e4c15f)"></div></div></div>').join(''):empty('No projects yet.');
+}
+function renderOpps(){
+  $('#oppsTable').innerHTML=cache.opps.length?'<div class="tablewrap"><table><thead><tr><th>Opportunity</th><th>Type</th><th>Stage</th><th>Next action</th><th>Deadline</th></tr></thead><tbody>'+cache.opps.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.opportunity_type)+'</td><td>'+badge(x.stage)+'</td><td>'+esc(x.next_action||'—')+'</td><td>'+esc(fmt(x.deadline))+'</td></tr>').join('')+'</tbody></table></div>':empty('No opportunities yet.');
+}
+function renderRights(){
+  $('#rightsTable').innerHTML=cache.rights.length?'<div class="tablewrap"><table><thead><tr><th>Title</th><th>Artist</th><th>Master</th><th>Publisher</th><th>ISRC</th><th>One-stop</th><th>Clearance</th></tr></thead><tbody>'+cache.rights.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.artist||'—')+'</td><td>'+esc(x.master_owner||'—')+'</td><td>'+esc(x.publisher||'—')+'</td><td>'+esc(x.isrc||'—')+'</td><td>'+badge(x.one_stop_status)+'</td><td>'+badge(x.clearance_flag)+'</td></tr>').join('')+'</tbody></table></div>':empty('Rights vault is ready. Add catalog records when you are ready.');
+}
+function renderMeetings(){
+  $('#meetingsGrid').innerHTML=cache.meetings.length?cache.meetings.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between"><strong>'+esc(x.title)+'</strong>'+badge(x.status)+'</div><div class="meta" style="margin-top:8px">'+esc(fmt(x.starts_at))+' → '+esc(fmt(x.ends_at))+'</div><p style="color:var(--muted);font-size:13px">'+esc(x.agenda||'No agenda yet.')+'</p></div>').join(''):empty('No meetings scheduled.');
+}
+function renderKpis(){
+  $('#kpiTable').innerHTML=cache.kpis.length?'<div class="tablewrap"><table><thead><tr><th>Source</th><th>Metric</th><th>Value</th><th>Previous</th><th>Period</th><th>Date</th></tr></thead><tbody>'+cache.kpis.map(x=>'<tr><td>'+esc(x.source)+'</td><td>'+esc(x.metric)+'</td><td>'+esc(x.value)+'</td><td>'+esc(x.previous_value??'—')+'</td><td>'+esc(x.period||'—')+'</td><td>'+esc(x.snapshot_date)+'</td></tr>').join('')+'</tbody></table></div>':empty('No KPI snapshots yet.');
+}
+function renderTeam(){
+  $('#teamGrid').innerHTML=cache.team.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between;gap:8px"><div><strong>'+esc(x.name)+'</strong><div class="meta">'+esc(x.job_title)+' · '+esc(x.department)+'</div></div>'+badge(x.access_status)+'</div></div>').join('');
+}
+async function loadAccessRequests(){
+  const {data}=await supabase.from('hq_access_requests').select('*').eq('status','pending').order('created_at',{ascending:true});
+  $('#accessRequestsBox').classList.remove('hidden');
+  $('#accessRequests').innerHTML=(data||[]).length?(data||[]).map(x=>'<div class="row"><div><strong>'+esc(x.full_name||x.email)+'</strong><div class="meta">'+esc(x.email)+' · requested '+esc(x.requested_role||'team')+'</div></div><div><button class="btn primary" onclick="window.approveAccess(\''+x.id+'\',\''+(x.requested_role||'contributor')+'\')">Approve</button></div></div>').join(''):empty('No pending access requests.');
+}
+window.approveAccess=async(id,role)=>{const {error}=await supabase.rpc('approve_hq_access',{request_id:id,assigned_role:role});if(error)alert(error.message);else{await log('access_approved','Approved HLR HQ staff access','access_request',id);loadAll();loadAccessRequests()}};
+function renderActivity(){
+  $('#activityList').innerHTML=cache.activity.length?cache.activity.map(x=>rowHtml(x.summary,(x.actor_name||'System')+' · '+fmt(x.occurred_at),badge(x.department||'activity'))).join(''):empty('No recorded HQ activity yet.');
+}
+function renderRadio(){
+  $('#radioMode').textContent=cache.station[0]?.mode||'—';$('#radioShows').textContent=cache.shows.length;$('#radioMedia').textContent=cache.media.length;$('#radioOpps').textContent=cache.radioOpps.length;
+}
+
+function openModal(title,body){$('#modalTitle').textContent=title;$('#modalBody').innerHTML=body;$('#modal').classList.remove('hidden')}
+window.closeModal=()=>$('#modal').classList.add('hidden');
+window.openQuickTask=window.openTaskModal=()=>openModal('New task',form([
+ ['title','Task title','text'],['assignee_name','Assignee','text'],['department','Department','text'],['priority','Priority','select',['normal','high','urgent','low']],['due_at','Due','datetime-local'],['description','Description','textarea']
+],'saveTask'));
+window.openProjectModal=()=>openModal('New project',form([
+ ['title','Project title','text'],['category','Category','text'],['department','Department','text'],['priority','Priority','select',['normal','high','urgent','low']],['description','Description','textarea']
+],'saveProject'));
+window.openOpportunityModal=()=>openModal('New opportunity',form([
+ ['title','Opportunity title','text'],['opportunity_type','Type','text'],['stage','Stage','select',['found','contacted','pitched','waiting','interested','accepted','rejected','completed']],['next_action','Next action','text'],['deadline','Deadline','datetime-local'],['source','Source','text'],['notes','Notes','textarea']
+],'saveOpportunity'));
+window.openRightsModal=()=>openModal('Add rights record',form([
+ ['title','Song / asset title','text'],['artist','Artist','text'],['master_owner','Master owner','text'],['publisher','Publisher','text'],['writers','Writers','text'],['isrc','ISRC','text'],['iswc','ISWC','text'],['upc','UPC','text'],['one_stop_status','One-stop','select',['unknown','yes','no','conditional']],['clearance_flag','Clearance','select',['none','review','restricted']],['notes','Notes','textarea']
+],'saveRights'));
+window.openMeetingModal=()=>openModal('Schedule meeting',form([
+ ['title','Meeting title','text'],['meeting_type','Type','text'],['starts_at','Starts','datetime-local'],['ends_at','Ends','datetime-local'],['location_type','Location','select',['video','phone','in_person','other']],['join_url','Join URL','text'],['agenda','Agenda','textarea']
+],'saveMeeting'));
+window.openKpiModal=()=>openModal('Add KPI snapshot',form([
+ ['source','Source / platform','text'],['metric','Metric','text'],['value','Value','number'],['previous_value','Previous value','number'],['period','Period','text'],['snapshot_date','Date','date'],['notes','Notes','textarea']
+],'saveKpi'));
+
+function form(fields,fn){
+ return '<form id="modalForm" class="formgrid">'+fields.map(f=>{
+  const [n,l,t,opts]=f;let control='';
+  if(t==='select') control='<select name="'+n+'">'+opts.map(o=>'<option value="'+o+'">'+o.replaceAll('_',' ')+'</option>').join('')+'</select>';
+  else if(t==='textarea') control='<textarea name="'+n+'" placeholder="'+esc(l)+'"></textarea>';
+  else control='<input name="'+n+'" type="'+t+'" placeholder="'+esc(l)+'"/>';
+  return '<label class="'+(t==='textarea'?'full':'')+'" style="font-size:12px;color:var(--muted)">'+esc(l)+control+'</label>'
+ }).join('')+'<div class="full"><button class="btn primary" type="submit">Save</button></div></form><div id="modalStatus" class="statusbar"></div><script>document.getElementById("modalForm").onsubmit=(e)=>{e.preventDefault();window.'+fn+'(new FormData(e.target))}<\/script>';
+}
+function fdObj(fd){const o={};for(const [k,v] of fd.entries())if(v!=='')o[k]=v;return o}
+async function save(table,data,action){
+ const {data:rows,error}=await supabase.from(table).insert(data).select().limit(1);
+ if(error){$('#modalStatus').textContent=error.message;return}
+ await log(action,'Created '+(data.title||data.metric||'HQ record'),table,rows?.[0]?.id||null);closeModal();loadAll();
+}
+window.saveTask=fd=>save('hq_tasks',{...fdObj(fd),status:'todo'},'task_created');
+window.saveProject=fd=>save('hq_projects',{...fdObj(fd),status:'planned',progress_percent:0},'project_created');
+window.saveOpportunity=fd=>save('hq_opportunities',fdObj(fd),'opportunity_created');
+window.saveRights=fd=>save('hq_rights',fdObj(fd),'rights_created');
+window.saveMeeting=fd=>save('hq_meetings',{...fdObj(fd),status:'scheduled'},'meeting_created');
+window.saveKpi=fd=>{const d=fdObj(fd);d.value=Number(d.value);if(d.previous_value!==undefined)d.previous_value=Number(d.previous_value);save('hq_kpis',d,'kpi_created')};
+</script>
+</body>
+</html>

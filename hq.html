@@ -278,8 +278,10 @@ function setStatus(id,msg,ok=false){const el=$(id);el.textContent=msg;el.style.c
 
 async function signIn(){
   setStatus('#authStatus','Signing in…');
-  const {error}=await supabase.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});
+  const {data,error}=await supabase.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});
   if(error) return setStatus('#authStatus',error.message);
+  setStatus('#authStatus','Signed in. Loading HQ…',true);
+  if(data?.session) await handleSession(data.session);
 }
 async function signUp(){
   setStatus('#authStatus','Creating account…');
@@ -316,7 +318,7 @@ $('#requestBtn').onclick=async()=>{
   setStatus('#requestStatus',error?error.message:'Access request submitted to HLR owner.',!error);
 };
 
-supabase.auth.onAuthStateChange((_e,s)=>handleSession(s));
+supabase.auth.onAuthStateChange((_e,s)=>{ setTimeout(()=>handleSession(s),0); });
 const {data:{session:initial}}=await supabase.auth.getSession(); await handleSession(initial);
 
 function nav(page){

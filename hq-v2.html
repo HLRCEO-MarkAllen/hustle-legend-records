@@ -91,8 +91,8 @@ th{color:#8d8da0;font-weight:700}
  .sidebar{display:none}
  .main{padding:14px 12px 80px}
  .kpis,.two,.three,.formgrid{grid-template-columns:1fr 1fr}
- .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(11,11,16,.95);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
- .mobilebar button{flex:1;border:0;background:transparent;color:#a7a7b5;font-size:11px;padding:7px 3px}
+ .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(11,11,16,.95);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));overflow-x:auto}
+ .mobilebar button{flex:1 0 56px;border:0;background:transparent;color:#a7a7b5;font-size:11px;padding:7px 3px}
  .mobilebar button.active{color:var(--gold2)}
 }
 @media(max-width:560px){
@@ -177,6 +177,7 @@ th{color:#8d8da0;font-weight:700}
       </div>
       <div class="navgroup">
         <div class="navlabel">Company</div>
+        <button class="navbtn" data-page="artists">★ Artists</button>
         <button class="navbtn" data-page="team">♟ Team</button>
         <button class="navbtn" data-page="compensation">＄ Compensation</button>
         <button class="navbtn" data-page="activity">↯ Activity</button>
@@ -243,6 +244,15 @@ th{color:#8d8da0;font-weight:700}
         <div class="notice">Radio stays on the same Supabase backend as HQ, so we are not creating a second paid stack.</div>
       </section>
 
+      <section id="page-artists" class="page hidden">
+        <div class="hero">
+          <div><h1>Artist Onboarding</h1><p>One workflow from prospect to release-ready. HLR rules stay consistent for everyone.</p></div>
+          <button class="btn primary" id="newArtistBtn" onclick="openArtistModal()">+ Start onboarding</button>
+        </div>
+        <div class="notice" style="margin-bottom:14px"><strong>Automation rule:</strong> an artist cannot become onboarding-ready until every required identity, contract, rights, clearance, release and payment step is completed. Publishing ownership is documented separately from staff compensation.</div>
+        <div id="artistsGrid" class="grid two"></div>
+      </section>
+
       <section id="page-team" class="page hidden">
         <div class="hero"><div><h1>Team</h1><p>Roles, access status and staff approvals.</p></div></div>
         <div id="teamGrid" class="grid two"></div>
@@ -274,6 +284,7 @@ th{color:#8d8da0;font-weight:700}
     <button class="active" data-page="dashboard">⌂<br>Home</button>
     <button data-page="tasks">✓<br>Tasks</button>
     <button data-page="opportunities">◎<br>Opps</button>
+    <button data-page="artists">★<br>Artists</button>
     <button data-page="team">♟<br>Team</button>
     <button data-page="compensation">$<br>Pay</button>
     <button data-page="rights">♬<br>Rights</button>
@@ -385,10 +396,12 @@ async function loadAll(){
     supabase.from('artist_opportunities').select('id'),
     supabase.from('hq_comp_policy').select('*').eq('id',1).maybeSingle(),
     supabase.from('hq_comp_cycles').select('*').order('created_at',{ascending:false}).limit(20),
-    supabase.from('hq_comp_allocations').select('*').order('created_at',{ascending:false}).limit(50)
+    supabase.from('hq_comp_allocations').select('*').order('created_at',{ascending:false}).limit(50),
+    supabase.from('hq_artists').select('*').order('created_at',{ascending:false}),
+    supabase.from('hq_artist_onboarding_steps').select('*').order('sort_order',{ascending:true})
   ];
   const r=await Promise.all(queries);
-  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[]};
+  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[],artists:r[16].data||[],artistSteps:r[17].data||[]};
   render();
   if(staff.role==='owner') loadAccessRequests();
 }
@@ -405,7 +418,7 @@ function render(){
   $('#pipelineList').innerHTML=(cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).slice(0,6).map(x=>rowHtml(x.title,(x.opportunity_type||'opportunity')+(x.next_action?' · '+x.next_action:''),badge(x.stage))).join('')||empty('No active opportunities.'));
   $('#meetingList').innerHTML=(cache.meetings.filter(x=>new Date(x.ends_at)>new Date()).slice(0,5).map(x=>rowHtml(x.title,fmt(x.starts_at),badge(x.status))).join('')||empty('No upcoming meetings.'));
 
-  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderTeam();renderComp();renderActivity();renderRadio();
+  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderArtists();renderTeam();renderComp();renderActivity();renderRadio();
 }
 function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
 
@@ -430,6 +443,29 @@ function renderMeetings(){
 function renderKpis(){
   $('#kpiTable').innerHTML=cache.kpis.length?'<div class="tablewrap"><table><thead><tr><th>Source</th><th>Metric</th><th>Value</th><th>Previous</th><th>Period</th><th>Date</th></tr></thead><tbody>'+cache.kpis.map(x=>'<tr><td>'+esc(x.source)+'</td><td>'+esc(x.metric)+'</td><td>'+esc(x.value)+'</td><td>'+esc(x.previous_value??'—')+'</td><td>'+esc(x.period||'—')+'</td><td>'+esc(x.snapshot_date)+'</td></tr>').join('')+'</tbody></table></div>':empty('No KPI snapshots yet.');
 }
+function renderArtists(){
+  const canCreate=['owner','a_and_r'].includes(staff?.role);
+  if($('#newArtistBtn')) $('#newArtistBtn').style.display=canCreate?'inline-block':'none';
+  if(!cache.artists.length){$('#artistsGrid').innerHTML=empty('No artists in onboarding yet.');return}
+  $('#artistsGrid').innerHTML=cache.artists.map(a=>{
+    const steps=cache.artistSteps.filter(s=>s.artist_id===a.id);
+    const done=steps.filter(s=>s.status==='complete').length;
+    const total=steps.filter(s=>s.required).length;
+    const pct=total?Math.round(done/total*100):0;
+    const stepHtml=steps.map(s=>{
+      const action=s.status==='complete'
+        ? '<button class="btn" onclick="window.setArtistStep(\''+s.id+'\',\'todo\')">Reopen</button>'
+        : '<button class="btn primary" onclick="window.setArtistStep(\''+s.id+'\',\'complete\')">Complete</button>';
+      return '<div class="row"><div><strong>'+esc(s.title)+'</strong><div class="meta">'+esc(s.category)+(s.notes?' · '+esc(s.notes):'')+'</div></div><div style="display:flex;gap:6px;align-items:center">'+badge(s.status)+action+'</div></div>';
+    }).join('');
+    return '<div class="card section"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><strong style="font-size:17px">'+esc(a.stage_name)+'</strong><div class="meta">'+esc(a.deal_type.replaceAll('_',' '))+' · Artist '+Number(a.artist_master_pct).toFixed(0)+'% / HLR '+Number(a.hlr_master_pct).toFixed(0)+'% master</div></div>'+badge(a.onboarding_status)+'</div><div style="height:7px;background:#242433;border-radius:999px;margin:12px 0;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#9a7727,#e4c15f)"></div></div><div class="meta" style="margin-bottom:10px">'+done+' of '+total+' required steps complete · Contract '+esc(a.contract_status)+'</div><div class="list">'+stepHtml+'</div></div>';
+  }).join('');
+}
+window.setArtistStep=async(id,status)=>{
+  const {error}=await supabase.rpc('set_hq_artist_step_status',{p_step_id:id,p_status:status,p_notes:null});
+  if(error)alert(error.message);else{await log('artist_onboarding_step','Artist onboarding step '+status,'artist_step',id);loadAll()}
+};
+
 function renderTeam(){
   $('#teamGrid').innerHTML=cache.team.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between;gap:8px"><div><strong>'+esc(x.name)+'</strong><div class="meta">'+esc(x.job_title)+' · '+esc(x.department)+'</div></div>'+badge(x.access_status)+'</div></div>').join('');
 }
@@ -490,6 +526,17 @@ window.openRightsModal=()=>openModal('Add rights record',form([
 window.openMeetingModal=()=>openModal('Schedule meeting',form([
  ['title','Meeting title','text'],['meeting_type','Type','text'],['starts_at','Starts','datetime-local'],['ends_at','Ends','datetime-local'],['location_type','Location','select',['video','phone','in_person','other']],['join_url','Join URL','text'],['agenda','Agenda','textarea']
 ],'saveMeeting'));
+window.openArtistModal=()=>openModal('Start artist onboarding',form([
+ ['stage_name','Artist / stage name','text'],
+ ['legal_name','Legal name','text'],
+ ['email','Email','email'],
+ ['deal_type','Deal type','select',['artist_label','distribution','license','single_project','other']],
+ ['artist_master_pct','Artist master %','number'],
+ ['hlr_master_pct','HLR master %','number'],
+ ['publishing_mode','Publishing','select',['creator_owned','hlr_admin','custom']],
+ ['publishing_admin_pct','Publishing admin % (only if agreed)','number'],
+ ['notes','Notes','textarea']
+],'saveArtist'));
 window.openCompModal=()=>openModal('New payout period',form([
  ['period_label','Period label (example: September 2026)','text'],['gross_revenue','Gross HLR revenue','number'],['direct_costs','Direct costs','number'],['notes','Notes','textarea']
 ],'saveComp'));
@@ -517,6 +564,26 @@ window.saveProject=fd=>save('hq_projects',{...fdObj(fd),status:'planned',progres
 window.saveOpportunity=fd=>save('hq_opportunities',fdObj(fd),'opportunity_created');
 window.saveRights=fd=>save('hq_rights',fdObj(fd),'rights_created');
 window.saveMeeting=fd=>save('hq_meetings',{...fdObj(fd),status:'scheduled'},'meeting_created');
+window.saveArtist=async fd=>{
+  const d=fdObj(fd);
+  const artistPct=d.artist_master_pct===''||d.artist_master_pct===undefined?50:Number(d.artist_master_pct);
+  const hlrPct=d.hlr_master_pct===''||d.hlr_master_pct===undefined?50:Number(d.hlr_master_pct);
+  if(artistPct+hlrPct!==100){$('#modalStatus').textContent='Master split must total 100%.';return}
+  const {data,error}=await supabase.rpc('create_hq_artist_onboarding',{
+    p_stage_name:d.stage_name,
+    p_legal_name:d.legal_name||null,
+    p_email:d.email||null,
+    p_deal_type:d.deal_type||'artist_label',
+    p_artist_master_pct:artistPct,
+    p_hlr_master_pct:hlrPct,
+    p_publishing_mode:d.publishing_mode||'creator_owned',
+    p_publishing_admin_pct:d.publishing_admin_pct?Number(d.publishing_admin_pct):null,
+    p_notes:d.notes||null
+  });
+  if(error){$('#modalStatus').textContent=error.message;return}
+  await log('artist_onboarding_created','Started onboarding for '+d.stage_name,'artist',data||null);
+  closeModal();loadAll();
+};
 window.saveComp=async fd=>{
   const d=fdObj(fd);
   const {data,error}=await supabase.rpc('create_hq_comp_cycle',{

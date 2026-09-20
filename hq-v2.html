@@ -178,6 +178,7 @@ th{color:#8d8da0;font-weight:700}
       <div class="navgroup">
         <div class="navlabel">Company</div>
         <button class="navbtn" data-page="team">♟ Team</button>
+        <button class="navbtn" data-page="compensation">＄ Compensation</button>
         <button class="navbtn" data-page="activity">↯ Activity</button>
       </div>
     </aside>
@@ -248,6 +249,21 @@ th{color:#8d8da0;font-weight:700}
         <div id="accessRequestsBox" class="card section hidden" style="margin-top:14px"><h3>Pending access requests</h3><div id="accessRequests"></div></div>
       </section>
 
+      <section id="page-compensation" class="page hidden">
+        <div class="hero"><div><h1>Compensation</h1><p>Transparent HLR staff profit-sharing. Artist/master and publishing income remain separate.</p></div><button class="btn primary" id="newCompBtn" onclick="openCompModal()">+ New payout period</button></div>
+        <div class="grid kpis">
+          <div class="card kpi"><div class="label">Tax reserve</div><div class="value" id="compTaxPct">—</div><div class="foot">Policy percentage</div></div>
+          <div class="card kpi"><div class="label">Operating reserve</div><div class="value" id="compOpsPct">—</div><div class="foot">Keeps HLR funded</div></div>
+          <div class="card kpi"><div class="label">Team pool</div><div class="value" id="compTeamPct">—</div><div class="foot">Shared by active staff</div></div>
+          <div class="card kpi"><div class="label">Split rule</div><div class="value" id="compSplitRule" style="font-size:20px">—</div><div class="foot">Current staff policy</div></div>
+        </div>
+        <div class="notice" style="margin-bottom:14px"><strong>HLR rule:</strong> staff profit share is separate from artist master payouts and from songwriting/publishing ownership. This page tracks staff compensation only.</div>
+        <div class="grid two">
+          <div class="card section"><h3>Payout periods</h3><div id="compCycles"></div></div>
+          <div class="card section"><h3>Latest team allocations</h3><div id="compAllocations"></div></div>
+        </div>
+      </section>
+
       <section id="page-activity" class="page hidden">
         <div class="hero"><div><h1>Activity</h1><p>Operational audit trail.</p></div></div>
         <div class="card section"><div id="activityList" class="list"></div></div>
@@ -259,6 +275,7 @@ th{color:#8d8da0;font-weight:700}
     <button data-page="tasks">✓<br>Tasks</button>
     <button data-page="opportunities">◎<br>Opps</button>
     <button data-page="team">♟<br>Team</button>
+    <button data-page="compensation">$<br>Pay</button>
     <button data-page="rights">♬<br>Rights</button>
   </div>
 </div>
@@ -365,10 +382,13 @@ async function loadAll(){
     supabase.from('station_state').select('*').limit(1),
     supabase.from('shows').select('id'),
     supabase.from('media_library').select('id'),
-    supabase.from('artist_opportunities').select('id')
+    supabase.from('artist_opportunities').select('id'),
+    supabase.from('hq_comp_policy').select('*').eq('id',1).maybeSingle(),
+    supabase.from('hq_comp_cycles').select('*').order('created_at',{ascending:false}).limit(20),
+    supabase.from('hq_comp_allocations').select('*').order('created_at',{ascending:false}).limit(50)
   ];
   const r=await Promise.all(queries);
-  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[]};
+  cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[]};
   render();
   if(staff.role==='owner') loadAccessRequests();
 }
@@ -385,7 +405,7 @@ function render(){
   $('#pipelineList').innerHTML=(cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).slice(0,6).map(x=>rowHtml(x.title,(x.opportunity_type||'opportunity')+(x.next_action?' · '+x.next_action:''),badge(x.stage))).join('')||empty('No active opportunities.'));
   $('#meetingList').innerHTML=(cache.meetings.filter(x=>new Date(x.ends_at)>new Date()).slice(0,5).map(x=>rowHtml(x.title,fmt(x.starts_at),badge(x.status))).join('')||empty('No upcoming meetings.'));
 
-  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderTeam();renderActivity();renderRadio();
+  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderTeam();renderComp();renderActivity();renderRadio();
 }
 function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
 
@@ -419,6 +439,33 @@ async function loadAccessRequests(){
   $('#accessRequests').innerHTML=(data||[]).length?(data||[]).map(x=>'<div class="row"><div><strong>'+esc(x.full_name||x.email)+'</strong><div class="meta">'+esc(x.email)+' · requested '+esc(x.requested_role||'team')+'</div></div><div><button class="btn primary" onclick="window.approveAccess(\''+x.id+'\',\''+(x.requested_role||'contributor')+'\')">Approve</button></div></div>').join(''):empty('No pending access requests.');
 }
 window.approveAccess=async(id,role)=>{const {error}=await supabase.rpc('approve_hq_access',{request_id:id,assigned_role:role});if(error)alert(error.message);else{await log('access_approved','Approved HLR HQ staff access','access_request',id);loadAll();loadAccessRequests()}};
+function money(v){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(v||0))}
+function renderComp(){
+  const p=cache.compPolicy||{};
+  $('#compTaxPct').textContent=(p.tax_reserve_pct??'—')+(p.tax_reserve_pct!=null?'%':'');
+  $('#compOpsPct').textContent=(p.operating_reserve_pct??'—')+(p.operating_reserve_pct!=null?'%':'');
+  $('#compTeamPct').textContent=(p.team_pool_pct??'—')+(p.team_pool_pct!=null?'%':'');
+  $('#compSplitRule').textContent=p.equal_split?'Equal split':'Custom split';
+  if($('#newCompBtn')) $('#newCompBtn').style.display=(staff?.role==='owner')?'inline-block':'none';
+
+  $('#compCycles').innerHTML=cache.compCycles.length?cache.compCycles.map(x=>{
+    const actions=(staff?.role==='owner')
+      ? (x.status==='draft'
+          ? '<button class="btn primary" onclick="window.approveComp(\''+x.id+'\')">Approve</button>'
+          : x.status==='approved'
+            ? '<button class="btn primary" onclick="window.payComp(\''+x.id+'\')">Mark paid</button>'
+            : '')
+      : '';
+    return '<div class="row"><div><strong>'+esc(x.period_label)+'</strong><div class="meta">'+money(x.gross_revenue)+' gross · '+money(x.direct_costs)+' costs · '+money(x.team_pool)+' team pool</div></div><div style="display:flex;gap:6px;align-items:center">'+badge(x.status)+actions+'</div></div>'
+  }).join(''):empty('No payout periods yet.');
+
+  $('#compAllocations').innerHTML=cache.compAllocations.length?cache.compAllocations.slice(0,12).map(x=>
+    rowHtml(x.member_name,money(x.amount)+' · '+Number(x.share_pct).toFixed(2)+'% of team pool',badge(x.status))
+  ).join(''):empty('No team allocations yet.');
+}
+window.approveComp=async(id)=>{const {error}=await supabase.rpc('approve_hq_comp_cycle',{p_cycle_id:id});if(error)alert(error.message);else{await log('comp_cycle_approved','Approved compensation period','comp_cycle',id);loadAll()}};
+window.payComp=async(id)=>{const {error}=await supabase.rpc('mark_hq_comp_cycle_paid',{p_cycle_id:id});if(error)alert(error.message);else{await log('comp_cycle_paid','Marked compensation period paid','comp_cycle',id);loadAll()}};
+
 function renderActivity(){
   $('#activityList').innerHTML=cache.activity.length?cache.activity.map(x=>rowHtml(x.summary,(x.actor_name||'System')+' · '+fmt(x.occurred_at),badge(x.department||'activity'))).join(''):empty('No recorded HQ activity yet.');
 }
@@ -443,6 +490,9 @@ window.openRightsModal=()=>openModal('Add rights record',form([
 window.openMeetingModal=()=>openModal('Schedule meeting',form([
  ['title','Meeting title','text'],['meeting_type','Type','text'],['starts_at','Starts','datetime-local'],['ends_at','Ends','datetime-local'],['location_type','Location','select',['video','phone','in_person','other']],['join_url','Join URL','text'],['agenda','Agenda','textarea']
 ],'saveMeeting'));
+window.openCompModal=()=>openModal('New payout period',form([
+ ['period_label','Period label (example: September 2026)','text'],['gross_revenue','Gross HLR revenue','number'],['direct_costs','Direct costs','number'],['notes','Notes','textarea']
+],'saveComp'));
 window.openKpiModal=()=>openModal('Add KPI snapshot',form([
  ['source','Source / platform','text'],['metric','Metric','text'],['value','Value','number'],['previous_value','Previous value','number'],['period','Period','text'],['snapshot_date','Date','date'],['notes','Notes','textarea']
 ],'saveKpi'));
@@ -467,6 +517,18 @@ window.saveProject=fd=>save('hq_projects',{...fdObj(fd),status:'planned',progres
 window.saveOpportunity=fd=>save('hq_opportunities',fdObj(fd),'opportunity_created');
 window.saveRights=fd=>save('hq_rights',fdObj(fd),'rights_created');
 window.saveMeeting=fd=>save('hq_meetings',{...fdObj(fd),status:'scheduled'},'meeting_created');
+window.saveComp=async fd=>{
+  const d=fdObj(fd);
+  const {data,error}=await supabase.rpc('create_hq_comp_cycle',{
+    p_period_label:d.period_label,
+    p_gross_revenue:Number(d.gross_revenue||0),
+    p_direct_costs:Number(d.direct_costs||0),
+    p_notes:d.notes||null
+  });
+  if(error){$('#modalStatus').textContent=error.message;return}
+  await log('comp_cycle_created','Created compensation period '+d.period_label,'comp_cycle',data||null);
+  closeModal();loadAll();
+};
 window.saveKpi=fd=>{const d=fdObj(fd);d.value=Number(d.value);if(d.previous_value!==undefined)d.previous_value=Number(d.previous_value);save('hq_kpis',d,'kpi_created')};
 </script>
 </body>

@@ -122,6 +122,9 @@ th{color:#8d8da0;font-weight:700}
       <input id="password" type="password" placeholder="Password"/>
       <button class="btn primary" id="signInBtn">Sign in</button>
       <button class="btn" id="signUpBtn">Create team account</button>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">
+        New team member? Enter your own email and create your own password above, then tap <strong style="color:var(--text)">Create team account</strong>.
+      </div>
       <div id="authStatus" class="statusbar"></div>
     </div>
   </div>
@@ -297,10 +300,18 @@ async function signIn(){
   window.location.replace('/hq-v2.html?login=ok&t='+Date.now());
 }
 async function signUp(){
-  setStatus('#authStatus','Creating account…');
-  const {data,error}=await supabase.auth.signUp({email:$('#email').value.trim(),password:$('#password').value});
+  const email=$('#email').value.trim();
+  const password=$('#password').value;
+  if(!email) return setStatus('#authStatus','Enter your email first.');
+  if(!password) return setStatus('#authStatus','Create a password first.');
+  if(password.length<6) return setStatus('#authStatus','Password must be at least 6 characters.');
+  setStatus('#authStatus','Creating team account…');
+  const {data,error}=await supabase.auth.signUp({email,password});
   if(error)return setStatus('#authStatus',error.message);
-  setStatus('#authStatus',data.session?'Account created.':'Account created. Check your email if confirmation is required.',true);
+  setStatus('#authStatus',data.session
+    ? 'Account created. Loading access request…'
+    : 'Account created. Check your email to verify it, then come back and sign in.',true);
+  if(data?.session) setTimeout(()=>window.location.reload(),400);
 }
 async function signOut(){await supabase.auth.signOut(); window.location.replace('/hq-v2.html?logout=1&t='+Date.now())}
 

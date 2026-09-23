@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCHWRTZMA8D Beat Store Manager | HLR</title><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="../../../site-shell.css">
+<style>
+body{background:#040604;color:#fff}.wrap{max-width:1100px}.panel{background:#0a0e0b;border:1px solid #1d4327;border-radius:18px;padding:18px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.row{display:flex;justify-content:space-between;gap:14px;align-items:center;border-top:1px solid #1b2c20;padding:12px 0}.row:first-child{border-top:0}.btn{border:1px solid #2e6e40;background:#0d1d12;color:#fff;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.btn.primary{background:#35ff75;color:#041007}input,textarea,select{width:100%;box-sizing:border-box;background:#060906;border:1px solid #29412f;color:#fff;border-radius:10px;padding:10px;margin-top:5px}label{display:block;margin:9px 0}.muted{color:#9ea8a0}.hidden{display:none}.pill{font-size:.75rem;border:1px solid #325f3d;border-radius:999px;padding:4px 8px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<div class="top"><div class="wrap nav"><a class="brand" href="../">SCHWRTZMA8D STORE</a><div class="links"><a href="../../../hq-v2.html">HLR HQ</a></div></div></div>
+<main class="wrap" style="padding:80px 0 50px"><h1>Beat Store Manager</h1><p class="muted">John controls beats, pricing, collaborations and rights here. HLR owner access is administrative.</p>
+<section id="auth" class="panel"><h2>Sign in</h2><div class="grid"><label>Email<input id="email" type="email"></label><label>Password<input id="password" type="password"></label></div><button id="signin" class="btn primary">Sign in</button><button id="signup" class="btn">Create account</button><div id="authMsg" class="muted"></div></section>
+<section id="claim" class="panel hidden"><h2>Store access</h2><p id="claimText"></p><button id="claimBtn" class="btn primary">Request control of John’s store</button><button id="signout1" class="btn">Sign out</button><div id="claimMsg" class="muted"></div></section>
+<div id="app" class="hidden">
+<div class="panel"><div class="row"><div><strong id="who"></strong><div class="muted" id="payState"></div></div><div><a class="btn" href="../">View public store</a> <button id="signout2" class="btn">Sign out</button></div></div></div>
+<section id="ownerApprovals" class="panel hidden"><h2>Pending store access</h2><div id="accessList"></div></section>
+<section class="panel"><h2>Add beat</h2><div class="grid"><label>Title<input id="bTitle"></label><label>Slug<input id="bSlug"></label><label>BPM<input id="bBpm" type="number"></label><label>Key<input id="bKey"></label><label>Genres, comma-separated<input id="bGenres"></label><label>Preview audio URL<input id="bPreview"></label></div><label>Description<textarea id="bDesc" rows="3"></textarea></label><button id="addBeat" class="btn primary">Add draft beat</button><div id="beatMsg" class="muted"></div></section>
+<section class="panel"><h2>Beat catalog</h2><div id="beatList"></div></section>
+<section class="panel"><h2>License pricing & publishing</h2><p class="muted">Nothing becomes buyable until John sets a price and turns both Active and Visible on.</p><div id="licenseList"></div></section>
+<section class="panel"><h2>Collaboration inbox</h2><div id="collabList"></div></section>
+<section class="panel"><h2>Rights tracker</h2><div class="grid"><label>Beat<select id="rBeat"></select></label><label>Participant<input id="rName"></label><label>Role<input id="rRole" placeholder="Producer, writer, artist…"></label><label>Contribution<input id="rContribution"></label><label>Writer %<input id="rWriter" type="number" step=".001"></label><label>Publishing %<input id="rPub" type="number" step=".001"></label><label>Master %<input id="rMaster" type="number" step=".001"></label></div><button id="addRight" class="btn primary">Add rights participant</button><div id="rightsList"></div></section>
+<section class="panel"><h2>Payment connection</h2><p>Checkout backend: <strong>installed</strong>. John’s PayPal Business credentials are <strong>not connected yet</strong>. His bank should stay connected inside PayPal—not stored in HLR.</p><p class="muted">Once the PayPal client ID/secret are added securely to the server, set payout status to live here through HLR administration.</p></section>
+</div></main>
+<script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2.57.4';
+const sb=createClient('https://frkzkgmmcfexudikcdef.supabase.co','sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9');
+const $=s=>document.querySelector(s),esc=(v='')=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+let session,store,staff,isManager=false,isOwner=false,beats=[],licenses=[];
+function msg(s,t){$(s).textContent=t}
+async function getStore(){const{data}=await sb.from('beat_stores').select('*').eq('slug','schwrtzma8d').single();store=data}
+async function handle(){
+ const{data:{session:s}}=await sb.auth.getSession();session=s;if(!s){$('#auth').classList.remove('hidden');$('#claim').classList.add('hidden');$('#app').classList.add('hidden');return}
+ $('#auth').classList.add('hidden');await getStore();
+ const{data:sp}=await sb.from('staff_profiles').select('*').eq('user_id',s.user.id).maybeSingle();staff=sp;isOwner=sp?.role==='owner';isManager=store?.owner_user_id===s.user.id||isOwner;
+ if(!isManager){$('#claim').classList.remove('hidden');$('#app').classList.add('hidden');const{data:r}=await sb.from('beat_store_access_requests').select('*').eq('store_id',store.id).eq('user_id',s.user.id).maybeSingle();$('#claimText').textContent=r?'Request status: '+r.status:'This login does not control the store yet.';return}
+ $('#claim').classList.add('hidden');$('#app').classList.remove('hidden');$('#who').textContent=isOwner?'HLR owner administration':'SCHWRTZMA8D / John store control';$('#payState').textContent='Payout: '+store.payout_provider+' · '+store.payout_status;await loadAll();if(isOwner)await loadApprovals();
+}
+$('#signin').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});msg('#authMsg',error?error.message:'Signed in.');if(!error)handle()};
+$('#signup').onclick=async()=>{const{error}=await sb.auth.signUp({email:$('#email').value.trim(),password:$('#password').value});msg('#authMsg',error?error.message:'Account created. Verify email if prompted, then sign in.')};
+async function out(){await sb.auth.signOut();location.reload()}$('#signout1').onclick=out;$('#signout2').onclick=out;
+$('#claimBtn').onclick=async()=>{const{error}=await sb.from('beat_store_access_requests').upsert({store_id:store.id,user_id:session.user.id,email:session.user.email,requested_name:'John Schwartz / SCHWRTZMA8D'},{onConflict:'store_id,user_id'});msg('#claimMsg',error?error.message:'Request sent to HLR owner.')};
+
+async function loadAll(){
+ const r=await Promise.all([
+  sb.from('beat_catalog').select('*').eq('store_id',store.id).order('created_at',{ascending:false}),
+  sb.from('beat_license_templates').select('*').eq('store_id',store.id).order('sort_order'),
+  sb.from('beat_collaboration_requests').select('*').eq('store_id',store.id).order('created_at',{ascending:false}),
+ ]);
+ beats=r[0].data||[];licenses=r[1].data||[];renderBeats();renderLicenses();renderCollabs();renderBeatSelect();await renderRights();
+}
+function renderBeats(){
+ $('#beatList').innerHTML=beats.length?beats.map(b=>`<div class="row"><div><strong>${esc(b.title)}</strong><div class="muted">${esc([b.bpm&&b.bpm+' BPM',b.musical_key,b.status].filter(Boolean).join(' · '))}</div></div><div><button class="btn" onclick="setBeatStatus('${b.id}','${b.status==='published'?'draft':'published'}')">${b.status==='published'?'Unpublish':'Publish'}</button></div></div>`).join(''):'<p class="muted">No beats yet.</p>';
+}
+window.setBeatStatus=async(id,status)=>{const{error}=await sb.from('beat_catalog').update({status,updated_at:new Date().toISOString()}).eq('id',id);if(error)alert(error.message);else loadAll()};
+$('#addBeat').onclick=async()=>{
+ const title=$('#bTitle').value.trim();const slug=$('#bSlug').value.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+ const{error}=await sb.from('beat_catalog').insert({store_id:store.id,title,slug,bpm:$('#bBpm').value?Number($('#bBpm').value):null,musical_key:$('#bKey').value.trim()||null,genres:$('#bGenres').value.split(',').map(x=>x.trim()).filter(Boolean),preview_url:$('#bPreview').value.trim()||null,description:$('#bDesc').value.trim()||null,status:'draft'});
+ msg('#beatMsg',error?error.message:'Beat added as draft.');if(!error)loadAll();
+};
+function renderLicenses(){
+ $('#licenseList').innerHTML=licenses.map(l=>`<div class="row"><div><strong>${esc(l.name)}</strong><div class="muted">${esc(l.terms_summary||'')}</div></div><div style="min-width:220px"><input id="price-${l.id}" type="number" step=".01" placeholder="Price" value="${l.price??''}"><label style="display:inline-flex;gap:5px"><input id="active-${l.id}" type="checkbox" style="width:auto" ${l.active?'checked':''}> Active</label> <label style="display:inline-flex;gap:5px"><input id="visible-${l.id}" type="checkbox" style="width:auto" ${l.visible?'checked':''}> Visible</label> <button class="btn" onclick="saveLicense('${l.id}')">Save</button></div></div>`).join('');
+}
+window.saveLicense=async id=>{const price=$('#price-'+id).value;const{error}=await sb.from('beat_license_templates').update({price:price===''?null:Number(price),active:$('#active-'+id).checked,visible:$('#visible-'+id).checked,updated_at:new Date().toISOString()}).eq('id',id);if(error)alert(error.message);else loadAll()};
+function renderCollabs(){const rows=arguments.length?arguments[0]:null;$('#collabList').innerHTML=(rows||[]).length?(rows||[]).map(c=>`<div class="row"><div><strong>${esc(c.requester_name)} ${c.artist_name?' / '+esc(c.artist_name):''}</strong><div class="muted">${esc(c.requester_email)} · ${esc(c.status)}</div><div>${esc(c.message)}</div></div><select onchange="setCollab('${c.id}',this.value)"><option>${esc(c.status)}</option><option>reviewing</option><option>contacted</option><option>negotiating</option><option>accepted</option><option>declined</option><option>closed</option></select></div>`).join(''):'<p class="muted">No collaboration requests yet.</p>'}
+async function loadCollabs(){const{data}=await sb.from('beat_collaboration_requests').select('*').eq('store_id',store.id).order('created_at',{ascending:false});renderCollabs(data||[])}
+window.setCollab=async(id,status)=>{await sb.from('beat_collaboration_requests').update({status,updated_at:new Date().toISOString()}).eq('id',id);loadCollabs()};
+function renderBeatSelect(){$('#rBeat').innerHTML=beats.map(b=>'<option value="'+b.id+'">'+esc(b.title)+'</option>').join('')}
+$('#addRight').onclick=async()=>{if(!$('#rBeat').value)return;const payload={beat_id:$('#rBeat').value,participant_name:$('#rName').value.trim(),role:$('#rRole').value.trim(),contribution:$('#rContribution').value.trim()||null,writer_share_pct:$('#rWriter').value===''?null:Number($('#rWriter').value),publishing_share_pct:$('#rPub').value===''?null:Number($('#rPub').value),master_share_pct:$('#rMaster').value===''?null:Number($('#rMaster').value)};const{error}=await sb.from('beat_rights_participants').insert(payload);if(error)alert(error.message);else renderRights()};
+async function renderRights(){if(!beats.length){$('#rightsList').innerHTML='<p class="muted">Add a beat first.</p>';return}const ids=beats.map(b=>b.id);const{data}=await sb.from('beat_rights_participants').select('*').in('beat_id',ids).order('created_at');$('#rightsList').innerHTML=(data||[]).map(r=>`<div class="row"><div><strong>${esc(r.participant_name)}</strong><div class="muted">${esc(r.role)} · Writer ${r.writer_share_pct??'—'}% · Publishing ${r.publishing_share_pct??'—'}% · Master ${r.master_share_pct??'—'}%</div></div><span class="pill">${r.agreed?'agreed':'pending'}</span></div>`).join('')||'<p class="muted">No rights participants recorded yet.</p>'}
+async function loadApprovals(){$('#ownerApprovals').classList.remove('hidden');const{data}=await sb.from('beat_store_access_requests').select('*').eq('store_id',store.id).eq('status','pending');$('#accessList').innerHTML=(data||[]).map(r=>`<div class="row"><div><strong>${esc(r.requested_name||r.email)}</strong><div class="muted">${esc(r.email)}</div></div><button class="btn primary" onclick="approveStore('${r.id}','${r.user_id}')">Approve John</button></div>`).join('')||'<p class="muted">No pending requests.</p>'}
+window.approveStore=async(id,userId)=>{
+ if(!isOwner)return;
+ const e1=await sb.from('beat_stores').update({owner_user_id:userId}).eq('id',store.id);
+ const e2=await sb.from('staff_profiles').upsert({user_id:userId,display_name:'John Schwartz / SCHWRTZMA8D',role:'contributor',active:true},{onConflict:'user_id'});
+ const e3=await sb.from('hq_team').update({auth_user_id:userId,access_status:'active'}).eq('id',store.manager_team_member_id);
+ const e4=await sb.from('beat_store_access_requests').update({status:'approved',reviewed_at:new Date().toISOString(),reviewed_by:session.user.id}).eq('id',id);
+ const error=e1.error||e2.error||e3.error||e4.error;if(error)alert(error.message);else{await getStore();loadApprovals()}
+};
+handle();
+</script></body></html>

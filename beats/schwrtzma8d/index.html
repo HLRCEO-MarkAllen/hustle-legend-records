@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCHWRTZMA8D Beats | Hustle Legend Records</title>
+<meta name="description" content="Buy original SCHWRTZMA8D beat licenses or request a collaboration through Hustle Legend Records.">
+<link rel="canonical" href="https://hustlelegendrecords.com/beats/schwrtzma8d/">
+<link rel="icon" href="../../HLR%20Logo.png" type="image/png"><link rel="stylesheet" href="../../site-shell.css">
+<style>
+:root{--g:#34ff74;--ink:#050705;--panel:#0a0d0a;--muted:#a7aea8}
+body{background:radial-gradient(circle at 80% 0,#113019 0,transparent 35%),#030403;color:#f5f7f5}
+.hero{padding:88px 0 44px}.eyebrow{color:var(--g);font-weight:900;letter-spacing:.15em;font-size:.78rem}
+h1{font-size:clamp(3rem,9vw,7.5rem);line-height:.86;margin:.25em 0}.lead{max-width:800px;color:#cbd2cc;font-size:1.1rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #235f34;border-radius:999px;padding:11px 16px;background:#0b170e;color:#fff;font-weight:800;cursor:pointer;text-decoration:none}.btn.primary{background:var(--g);color:#041007;border-color:var(--g)}
+.band{border-block:1px solid #17311e;background:#071009;padding:12px 0;color:#aab5ac}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:linear-gradient(180deg,#0d130f,#070a08);border:1px solid #17311e;border-radius:20px;padding:18px}.beat h3{margin:.35em 0}.meta{color:#97a19a;font-size:.9rem}.tag{display:inline-block;border:1px solid #285c37;border-radius:999px;padding:4px 8px;margin:4px 4px 0 0;color:#bdc9c0;font-size:.78rem}.price{font-size:1.2rem;font-weight:900}.notice{border:1px dashed #386046;border-radius:18px;padding:18px;color:#b8c1ba}.section{padding:40px 0}input,textarea,select{width:100%;box-sizing:border-box;background:#070a08;border:1px solid #29412f;color:#fff;border-radius:12px;padding:12px;margin-top:6px}label{display:block;margin:12px 0;font-weight:700}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.status{margin-top:12px;color:#9ca79f}.license{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #1b2b1f;padding:12px 0}.license:first-child{border-top:0}
+@media(max-width:800px){.grid,.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap nav"><a class="brand" href="../../">HLR</a><div class="links"><a href="../../#team">Team</a><a href="../../radio/">Radio</a><a href="../../licensing/">Licensing</a></div></div></div>
+<header class="hero"><div class="wrap"><div class="eyebrow">HLR PRODUCER STORE</div><h1>SCHWRTZMA8D<br>BEATS</h1><p class="lead">Soundtracks for Real Life. Original production by John Schwartz / SCHWRTZMA8D — built from Southern Illinois grit, family, work, and real-life stories.</p><div class="actions"><a class="btn primary" href="#beats">Browse beats</a><a class="btn" href="#collab">Collaborate with John</a><a class="btn" href="../../team/schwrtzma8d/">Producer profile</a></div></div></header>
+<div class="band"><div class="wrap" id="storeStatus">Loading store…</div></div>
+<main>
+<section class="section" id="beats"><div class="wrap"><div class="eyebrow">AVAILABLE PRODUCTION</div><h2>Beat catalog</h2><div id="beatsGrid" class="grid"></div></div></section>
+<section class="section" id="collab"><div class="wrap"><div class="eyebrow">WORK WITH SCHWRTZMA8D</div><h2>Collaboration request</h2><p class="lead">Need custom production, co-production, an artist collaboration, or want to discuss rights/splits before a release? Send it directly into John’s HLR production queue.</p><div class="card">
+<div class="two"><label>Your name<input id="cName" maxlength="120"></label><label>Email<input id="cEmail" type="email" maxlength="320"></label></div>
+<div class="two"><label>Artist / group<input id="cArtist"></label><label>Project title<input id="cProject"></label></div>
+<label>What do you want to build?<textarea id="cMessage" rows="6" minlength="10" maxlength="5000" placeholder="Tell John about the song, vibe, timeline, and what kind of collaboration you want."></textarea></label>
+<label style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input id="cConsent" type="checkbox" style="width:auto;margin-top:3px"> I authorize Hustle Legend Records and SCHWRTZMA8D to use this information to respond to my request.</label>
+<button class="btn primary" id="collabBtn">Send collaboration request</button><div class="status" id="collabStatus"></div>
+</div></div></section>
+</main>
+<footer class="footer"><div class="wrap">SCHWRTZMA8D Beats · Hustle Legend Records · Payments route through John’s connected merchant account. Rights are tracked per project.</div></footer>
+
+<div id="checkout" hidden style="position:fixed;inset:0;background:#000c;z-index:99;padding:20px;overflow:auto"><div class="card" style="max-width:560px;margin:6vh auto"><button class="btn" id="closeCheckout" style="float:right">Close</button><h2 id="checkoutTitle">License beat</h2><div id="checkoutLicenses"></div><div id="buyerFields" hidden><label>Name<input id="buyerName"></label><label>Email<input id="buyerEmail" type="email"></label><label style="display:flex;gap:8px;font-weight:500"><input id="acceptTerms" type="checkbox" style="width:auto"> I accept the displayed license terms.</label><div id="paypalButtons"></div><div class="status" id="payStatus"></div></div></div></div>
+
+<script type="module">
+import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.4';
+const sb=createClient('https://frkzkgmmcfexudikcdef.supabase.co','sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9');
+const STORE='schwrtzma8d', FN='https://frkzkgmmcfexudikcdef.supabase.co/functions/v1/schwrtzma8d-paypal';
+const esc=(v='')=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+let store=null,beats=[],licenses=[],selectedBeat=null,selectedLicense=null,paypalCfg=null;
+
+async function load(){
+ const {data:s}=await sb.from('beat_stores').select('id,slug,display_name,owner_name,tagline,description,currency,payout_provider,payout_status,active').eq('slug',STORE).single(); store=s;
+ if(!s){document.querySelector('#storeStatus').textContent='Store unavailable.';return}
+ const [b,l,c]=await Promise.all([
+   sb.from('beat_catalog').select('id,title,slug,description,bpm,musical_key,genres,moods,preview_url,artwork_url,status,exclusive_available').eq('store_id',s.id).eq('status','published').order('created_at',{ascending:false}),
+   sb.from('beat_license_templates').select('id,license_key,name,license_type,price,audio_formats,terms_summary,contract_version,active,visible').eq('store_id',s.id).eq('active',true).eq('visible',true).order('sort_order'),
+   fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'config'})}).then(r=>r.json()).catch(()=>({connected:false}))
+ ]);
+ beats=b.data||[];licenses=l.data||[];paypalCfg=c;
+ document.querySelector('#storeStatus').textContent=(c.connected&&s.payout_status==='live')?'Checkout live · Payments go to John’s connected PayPal merchant account':'Catalog live · Checkout awaiting John’s PayPal connection';
+ render();
+}
+function render(){
+ const box=document.querySelector('#beatsGrid');
+ if(!beats.length){box.innerHTML='<div class="notice" style="grid-column:1/-1">John’s store infrastructure is live. His first beat uploads are next.</div>';return}
+ box.innerHTML=beats.map(b=>`<article class="card beat">${b.artwork_url?'<img src="'+esc(b.artwork_url)+'" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:14px">':''}<div class="meta">${esc([b.bpm&&b.bpm+' BPM',b.musical_key].filter(Boolean).join(' · '))}</div><h3>${esc(b.title)}</h3><p>${esc(b.description||'Original SCHWRTZMA8D production.')}</p><div>${(b.genres||[]).map(x=>'<span class="tag">'+esc(x)+'</span>').join('')}</div>${b.preview_url?'<audio controls preload="none" src="'+esc(b.preview_url)+'" style="width:100%;margin:14px 0"></audio>':''}<button class="btn primary buy" data-id="${b.id}">License this beat</button></article>`).join('');
+ document.querySelectorAll('.buy').forEach(x=>x.onclick=()=>openCheckout(x.dataset.id));
+}
+function openCheckout(id){
+ selectedBeat=beats.find(x=>x.id===id);selectedLicense=null;
+ document.querySelector('#checkoutTitle').textContent='License “'+selectedBeat.title+'”';
+ document.querySelector('#checkoutLicenses').innerHTML=licenses.length?licenses.map(l=>`<div class="license"><div><strong>${esc(l.name)}</strong><div class="meta">${esc(l.terms_summary||'')}</div></div><div><div class="price">${l.price==null?'—':'$'+Number(l.price).toFixed(2)}</div><button class="btn pick" data-id="${l.id}">Choose</button></div></div>`).join(''):'<div class="notice">John has not published his license prices/terms yet. Use the collaboration form for now.</div>';
+ document.querySelector('#buyerFields').hidden=true;document.querySelector('#checkout').hidden=false;
+ document.querySelectorAll('.pick').forEach(x=>x.onclick=()=>selectLicense(x.dataset.id));
+}
+async function selectLicense(id){
+ selectedLicense=licenses.find(x=>x.id===id);
+ document.querySelector('#buyerFields').hidden=false;
+ document.querySelector('#payStatus').textContent='';
+ const target=document.querySelector('#paypalButtons');target.innerHTML='';
+ if(!paypalCfg?.connected||store.payout_status!=='live'){document.querySelector('#payStatus').textContent='Checkout is not connected yet. John must connect his PayPal Business account first.';return}
+ if(!document.querySelector('script[data-paypal]')){
+   const s=document.createElement('script');s.dataset.paypal='1';s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(paypalCfg.clientId)+'&currency=USD';s.onload=renderPayPal;document.head.appendChild(s);
+ } else renderPayPal();
+}
+function renderPayPal(){
+ if(!window.paypal||!selectedLicense)return;
+ window.paypal.Buttons({
+  createOrder:async()=>{
+   if(!document.querySelector('#acceptTerms').checked)throw new Error('Accept license terms first.');
+   const buyer_name=document.querySelector('#buyerName').value.trim(),buyer_email=document.querySelector('#buyerEmail').value.trim();
+   const r=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create',beat_id:selectedBeat.id,license_id:selectedLicense.id,buyer_name,buyer_email})});
+   const d=await r.json();if(!r.ok)throw new Error(d.error||'Could not create order');return d.id;
+  },
+  onApprove:async(data)=>{
+   document.querySelector('#payStatus').textContent='Confirming payment…';
+   const r=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'capture',order_id:data.orderID})});
+   const d=await r.json();if(!r.ok)throw new Error(d.error||'Capture failed');
+   document.querySelector('#payStatus').textContent='Payment complete. Your order is recorded in HLR rights/sales tracking.';
+  },
+  onError:(e)=>document.querySelector('#payStatus').textContent=e.message||'Checkout error.'
+ }).render('#paypalButtons');
+}
+document.querySelector('#closeCheckout').onclick=()=>document.querySelector('#checkout').hidden=true;
+document.querySelector('#collabBtn').onclick=async()=>{
+ const payload={store_id:store?.id,requester_name:document.querySelector('#cName').value.trim(),requester_email:document.querySelector('#cEmail').value.trim(),artist_name:document.querySelector('#cArtist').value.trim()||null,project_title:document.querySelector('#cProject').value.trim()||null,message:document.querySelector('#cMessage').value.trim(),consent:document.querySelector('#cConsent').checked};
+ const out=document.querySelector('#collabStatus');out.textContent='Sending…';
+ const {error}=await sb.from('beat_collaboration_requests').insert(payload);out.textContent=error?error.message:'Sent. John’s production queue has it.';
+};
+load();
+</script></body></html>

@@ -43,7 +43,7 @@ async function loadAll(){
   sb.from('beat_license_templates').select('*').eq('store_id',store.id).order('sort_order'),
   sb.from('beat_collaboration_requests').select('*').eq('store_id',store.id).order('created_at',{ascending:false}),
  ]);
- beats=r[0].data||[];licenses=r[1].data||[];renderBeats();renderLicenses();renderCollabs();renderBeatSelect();await renderRights();
+ beats=r[0].data||[];licenses=r[1].data||[];renderBeats();renderLicenses();renderCollabs(r[2].data||[]);renderBeatSelect();await renderRights();
 }
 function renderBeats(){
  $('#beatList').innerHTML=beats.length?beats.map(b=>`<div class="row"><div><strong>${esc(b.title)}</strong><div class="muted">${esc([b.bpm&&b.bpm+' BPM',b.musical_key,b.status].filter(Boolean).join(' · '))}</div></div><div><button class="btn" onclick="setBeatStatus('${b.id}','${b.status==='published'?'draft':'published'}')">${b.status==='published'?'Unpublish':'Publish'}</button></div></div>`).join(''):'<p class="muted">No beats yet.</p>';

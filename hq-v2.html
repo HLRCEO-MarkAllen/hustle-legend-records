@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>HLR HQ — Hustle Legend Records</title>
-<meta name="hlr-build" content="2026-09-20-v2"/>
+<meta name="hlr-build" content="2026-09-23-v3-auth-recovery"/>
 <meta name="theme-color" content="#0b0b10"/>
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <style>
@@ -117,15 +117,23 @@ th{color:#8d8da0;font-weight:700}
     <div class="brand" style="margin-bottom:18px"><div class="logo">HLR</div><div><span>HUSTLE LEGEND RECORDS</span><small>HQ COMMAND CENTER</small></div></div>
     <h1>HLR HQ</h1>
     <p>Private operations hub for the Hustle Legend Records team.</p>
-    <div class="stack">
-      <input id="email" type="email" placeholder="Email"/>
-      <input id="password" type="password" placeholder="Password"/>
+    <div id="loginControls" class="stack">
+      <input id="email" type="email" placeholder="Email" autocomplete="email"/>
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password"/>
       <button class="btn primary" id="signInBtn">Sign in</button>
       <button class="btn" id="signUpBtn">Create team account</button>
+      <button class="btn" id="forgotBtn">Forgot password</button>
       <div style="font-size:12px;color:var(--muted);line-height:1.5">
         New team member? Enter your own email and create your own password above, then tap <strong style="color:var(--text)">Create team account</strong>.
       </div>
       <div id="authStatus" class="statusbar"></div>
+    </div>
+    <div id="recoveryBox" class="stack hidden">
+      <div class="notice">Password recovery is active. Choose a new password for this HLR HQ account.</div>
+      <input id="newPassword" type="password" placeholder="New password" autocomplete="new-password"/>
+      <input id="confirmPassword" type="password" placeholder="Confirm new password" autocomplete="new-password"/>
+      <button class="btn primary" id="savePasswordBtn">Save new password</button>
+      <div id="recoveryStatus" class="statusbar"></div>
     </div>
   </div>
 </div>
@@ -318,6 +326,8 @@ th{color:#8d8da0;font-weight:700}
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
 const supabase=createClient('https://frkzkgmmcfexudikcdef.supabase.co','sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9');
 let session=null, staff=null, cache={};
+let recoveryMode=new URLSearchParams(window.location.search).get('recovery')==='1';
+const HQ_URL='https://hustlelegendrecords.com/hq-v2.html';
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=(v='')=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
@@ -350,16 +360,57 @@ async function signUp(){
   if(!password) return setStatus('#authStatus','Create a password first.');
   if(password.length<6) return setStatus('#authStatus','Password must be at least 6 characters.');
   setStatus('#authStatus','Creating team account…');
-  const {data,error}=await supabase.auth.signUp({email,password});
+  const {data,error}=await supabase.auth.signUp({
+    email,
+    password,
+    options:{emailRedirectTo:HQ_URL}
+  });
   if(error)return setStatus('#authStatus',error.message);
   setStatus('#authStatus',data.session
     ? 'Account created. Loading access request…'
     : 'Account created. Check your email to verify it, then come back and sign in.',true);
   if(data?.session) setTimeout(()=>window.location.reload(),400);
 }
+async function requestPasswordReset(){
+  const email=$('#email').value.trim();
+  if(!email) return setStatus('#authStatus','Enter your email first, then tap Forgot password.');
+  setStatus('#authStatus','Sending password reset email…');
+  const {error}=await supabase.auth.resetPasswordForEmail(email,{
+    redirectTo:HQ_URL+'?recovery=1'
+  });
+  if(error) return setStatus('#authStatus',error.message);
+  setStatus('#authStatus','Reset email sent. Open the newest password-reset email, then return here to choose a new password.',true);
+}
+function showRecovery(s){
+  if(s) session=s;
+  recoveryMode=true;
+  $('#pendingView').classList.add('hidden');
+  $('#appView').classList.add('hidden');
+  $('#authView').classList.remove('hidden');
+  $('#loginControls').classList.add('hidden');
+  $('#recoveryBox').classList.remove('hidden');
+}
+async function saveRecoveredPassword(){
+  const p1=$('#newPassword').value;
+  const p2=$('#confirmPassword').value;
+  if(!p1||p1.length<6) return setStatus('#recoveryStatus','Password must be at least 6 characters.');
+  if(p1!==p2) return setStatus('#recoveryStatus','Passwords do not match.');
+  setStatus('#recoveryStatus','Updating password…');
+  const {error}=await supabase.auth.updateUser({password:p1});
+  if(error) return setStatus('#recoveryStatus',error.message);
+  setStatus('#recoveryStatus','Password updated. Opening HLR HQ…',true);
+  window.history.replaceState({},'',HQ_URL);
+  setTimeout(()=>window.location.replace('/hq-v2.html?password=updated&t='+Date.now()),500);
+}
 async function signOut(){await supabase.auth.signOut(); window.location.replace('/hq-v2.html?logout=1&t='+Date.now())}
 
-$('#signInBtn').onclick=signIn; $('#signUpBtn').onclick=signUp; $('#signOutBtn').onclick=signOut; $('#pendingSignOut').onclick=signOut; $('#refreshBtn').onclick=()=>loadAll();
+$('#signInBtn').onclick=signIn;
+$('#signUpBtn').onclick=signUp;
+$('#forgotBtn').onclick=requestPasswordReset;
+$('#savePasswordBtn').onclick=saveRecoveredPassword;
+$('#signOutBtn').onclick=signOut;
+$('#pendingSignOut').onclick=signOut;
+$('#refreshBtn').onclick=()=>loadAll();
 
 async function handleSession(s){
   session=s;
@@ -386,8 +437,20 @@ $('#requestBtn').onclick=async()=>{
   setStatus('#requestStatus',error?error.message:'Access request submitted to HLR owner.',!error);
 };
 
+supabase.auth.onAuthStateChange(async(event,s)=>{
+  if(event==='PASSWORD_RECOVERY'){
+    showRecovery(s);
+    return;
+  }
+  if(event==='SIGNED_OUT'){
+    recoveryMode=false;
+    await handleSession(null);
+  }
+});
+
 const {data:{session:initial}}=await supabase.auth.getSession();
-await handleSession(initial);
+if(recoveryMode && initial) showRecovery(initial);
+else await handleSession(initial);
 
 function nav(page){
   $$('.page').forEach(x=>x.classList.add('hidden')); $('#page-'+page)?.classList.remove('hidden');

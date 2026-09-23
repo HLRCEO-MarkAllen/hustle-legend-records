@@ -68,7 +68,7 @@ async function loadApprovals(){$('#ownerApprovals').classList.remove('hidden');c
 window.approveStore=async(id,userId)=>{
  if(!isOwner)return;
  const e1=await sb.from('beat_stores').update({owner_user_id:userId}).eq('id',store.id);
- const e2=await sb.from('staff_profiles').upsert({user_id:userId,display_name:'John Schwartz / SCHWRTZMA8D',role:'contributor',active:true},{onConflict:'user_id'});
+ const e2=await sb.from('staff_profiles').upsert({user_id:userId,display_name:'John Schwartz / SCHWRTZMA8D',role:'producer',active:true},{onConflict:'user_id'});
  const e3=await sb.from('hq_team').update({auth_user_id:userId,access_status:'active'}).eq('id',store.manager_team_member_id);
  const e4=await sb.from('beat_store_access_requests').update({status:'approved',reviewed_at:new Date().toISOString(),reviewed_by:session.user.id}).eq('id',id);
  const error=e1.error||e2.error||e3.error||e4.error;if(error)alert(error.message);else{await getStore();loadApprovals()}

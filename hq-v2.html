@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>HLR HQ — Hustle Legend Records</title>
-<meta name="hlr-build" content="2026-09-23-v4-auth-rescue"/>
+<meta name="hlr-build" content="2026-09-23-v5-auth-rate-feedback"/>
 <meta name="theme-color" content="#0b0b10"/>
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <style>
@@ -385,8 +385,13 @@ async function requestPasswordReset(){
   const {error}=await supabase.auth.resetPasswordForEmail(email,{
     redirectTo:HQ_URL+'?recovery=1'
   });
-  if(error) return setStatus('#authStatus',error.message);
-  setStatus('#authStatus','Reset email sent. If the link opens localhost, come back here and use “Recovery link sent me to localhost.”',true);
+  if(error){
+    const msg=(error.status===429 || error.code==='over_email_send_rate_limit')
+      ? 'Supabase email limit reached — no reset email was sent. Do not keep tapping the button; try again after the hourly email window resets.'
+      : error.message;
+    return setStatus('#authStatus',msg);
+  }
+  setStatus('#authStatus','Reset email sent. Open the newest recovery email only.',true);
 }
 async function rescueRecoveryUrl(){
   const raw=$('#recoveryUrlInput').value.trim();

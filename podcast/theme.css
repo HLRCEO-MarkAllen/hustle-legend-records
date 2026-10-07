@@ -1,0 +1,32 @@
+/* Podcast identity: crimson / graphite / silver. Scoped to podcast pages. */
+:root{--bg:#08090d;--panel:#111319;--gold:#ff526b;--gold2:#ffd0d8;--text:#f4f5f8;--muted:#b4b7c2;--line:#49303b}
+body{background:radial-gradient(ellipse at 85% 0,rgba(182,22,52,.23),transparent 34rem),radial-gradient(ellipse at 0 55%,rgba(79,92,117,.08),transparent 28rem),#08090d}
+body:after{-webkit-text-stroke:1px rgba(255,82,107,.055)}
+.top{background:#090a0fec;border-bottom-color:#49303b}.top:after{background:linear-gradient(90deg,transparent,#c62548,transparent)}
+.brand{color:#f0f1f6;text-shadow:0 0 22px #ff526b22}
+.eyebrow{background:linear-gradient(90deg,#ffd0d8,#ff526b);background-clip:text;-webkit-background-clip:text}
+.label,.desk-preview .label{color:#ff9bae}.lead{color:#bcc0cc}
+.station-heading h1 span{color:#ff526b}
+.station-logo{padding:8px;background:#09090c;border:1px solid #4b303b;border-radius:16px}
+.station-feature{border-color:#633042;background:linear-gradient(130deg,#241019,#101117 65%);box-shadow:0 20px 70px #0005}
+.station-side{background:#0b0d13;border-color:#49303b}
+.empty,.studio-panel,.draft-card,.scene-note{border-color:#49303b}
+.studio-panel{background:linear-gradient(145deg,#13131b,#0c0d12);box-shadow:0 16px 45px #0003}
+.draft-card{background:linear-gradient(135deg,#241019,#0d0f15)}
+.station-contact,.review,.footer{border-color:#39323f}
+.btn{border-color:#694052;background:#12141b;color:#eef0f6}
+.btn.primary{background:linear-gradient(135deg,#c92549,#f04466);color:#fff;border:1px solid #ff637d}
+.btn:hover{border-color:#ff8298;background:#221520}
+.btn.primary:hover{background:linear-gradient(135deg,#b21c3c,#dd3657);color:#fff}
+.record-btn{background:#c92549;border-color:#ff637d;color:#fff}
+.timer{color:#ff9bae}
+.status-message{background:#20111a;border-left-color:#ff526b}
+.studio-panel input:not([type=checkbox]),.studio-panel textarea,.studio-panel select{background:#0b0d13;border-color:#66505e;color:#f4f5f8}
+.studio-panel input::placeholder,.studio-panel textarea::placeholder{color:#9398a8}
+.studio-panel:focus-within{border-color:#a5445b}
+.scene-note{color:#d8c1c9;background:#151019}
+.desk-tabs a{border-color:#634052;color:#e5c5ce;background:#101118}
+.desk-tabs a:hover{border-color:#ff526b;color:#ffd0d8}
+input[type=checkbox]{accent-color:#cd2b4d}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #ff9bae;outline-offset:3px}
+::selection{background:#b32243;color:#fff}

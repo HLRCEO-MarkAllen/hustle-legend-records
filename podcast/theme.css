@@ -15,7 +15,7 @@ body:after{-webkit-text-stroke:1px rgba(255,82,107,.055)}
 .draft-card{background:linear-gradient(135deg,#241019,#0d0f15)}
 .station-contact,.review,.footer{border-color:#39323f}
 .btn{border-color:#694052;background:#12141b;color:#eef0f6}
-.btn.primary{background:linear-gradient(135deg,#c92549,#f04466);color:#fff;border:1px solid #ff637d}
+.btn.primary{background:linear-gradient(135deg,#aa1938,#cd2b4d);color:#fff;border:1px solid #ff637d}
 .btn:hover{border-color:#ff8298;background:#221520}
 .btn.primary:hover{background:linear-gradient(135deg,#b21c3c,#dd3657);color:#fff}
 .record-btn{background:#c92549;border-color:#ff637d;color:#fff}

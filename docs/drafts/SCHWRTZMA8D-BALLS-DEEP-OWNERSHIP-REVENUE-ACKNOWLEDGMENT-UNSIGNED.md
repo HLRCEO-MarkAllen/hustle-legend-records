@@ -92,3 +92,7 @@ Research references for counsel: Illinois LLC Act, 805 ILCS 180/10-10 (company o
 These sources inform review; they do not certify this contract or source permissions.
 
 **HOLD: NO PUBLICATION, CHECKOUT, PAYMENT OR CUSTOMER FILE DELIVERY.**
+
+### Conditional acceptance update — October 8, 2026
+Mark agreed to the proposed commercial revision and requested it be sent to John. Mark subsequently supplied a message attributed to John accepting revision a19bf0feee74765cae3e6f610e98154ab9a8627c and the $35.99 nonexclusive MP3 + WAV offer, expressly subject to outstanding schedules, final legal review and execution, with no publication/payment authorization.
+See [acceptance record and pre-signature schedules](SCHWRTZMA8D-BALLS-DEEP-ACCEPTANCE-AND-SIGNING-SCHEDULES-2026-10-08.md) for provenance and remaining evidence. No independent recipient authentication or signature is established by this update. Commercial proposal acceptance does not resolve missing rights, entity, customer scope or technical facts; all execution and launch gates remain.

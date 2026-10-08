@@ -2,7 +2,7 @@
 
 **Status:** Internal draft only. Not a customer-facing agreement, offer, publication authorization, or legal advice.
 **Owner/producer:** John Schwartz (SCHWRTZMA8D). **HLR CEO:** Mark Allen.
-**Prepared:** October 8, 2026. **Approval:** Pending John, CEO, and legal review.
+**Prepared:** October 8, 2026. **Approval:** John approved the three proposed usage-limit/duration rows **for legal review only** on October 8, 2026 (statement relayed via Digital John). Final CEO/legal review and commercial approval remain pending.
 
 ## Preparation pricing (John accepted; not authorized for publication)
 | Tier | Preparation price | Character |
@@ -12,7 +12,7 @@
 | Trackout / Stems | $99.99 | Proposed nonexclusive license |
 | Exclusive Rights | Starting at $399, contact for quote | Negotiated per beat; no automatic transfer |
 
-## Proposed commercial terms — NEGOTIABLE, NOT APPROVED
+## Usage limits and duration — JOHN APPROVED FOR LEGAL REVIEW ONLY; NOT COMMERCIAL APPROVAL
 | Term | MP3 | WAV | Trackout/Stems |
 |---|---|---|---|
 | License | Nonexclusive | Nonexclusive | Nonexclusive |
@@ -67,3 +67,18 @@ No beat should be published before proof of rights and sample/loop commercial cl
 - **Qualified music attorney:** license enforceability, copyright and publishing rights, exclusivity/prior leases, refund/consumer terms.
 
 **NO PUBLICATION. NO LIVE CHECKOUT. NO REAL CHARGES.**
+
+## Approval record — John Schwartz / SCHWRTZMA8D (October 8, 2026)
+**Source:** Written statement supplied by Digital John on behalf of John Schwartz. HLR records this as a reported approval for legal review, not as an independently authenticated signature or executed license.
+
+John approved the following **for contract drafting and legal review only**:
+
+| Tier | Streams | Paid downloads | Music videos | Duration |
+|---|---:|---:|---:|---|
+| MP3 Lease | 100,000 | 5,000 | 1 | 5 years |
+| WAV Lease | 500,000 | 10,000 | 2 | 5 years |
+| Trackout / Stems | 1,000,000 | 25,000 | 3 | 5 years |
+
+**Express limitations:** No publication, license activation, or live checkout authorization. Publishing splits, producer royalties, copyright ownership, and co-producer rights are unresolved. Exclusive rights are individually negotiated starting at $399 as a quote, not a sale price. No copyright transfer or royalty waiver approved. Final agreements require separate approval before commercial use.
+
+**CEO/legal review queue:** Confirm the definitions of streams, downloads and videos; derivative work scope; social monetization; duration start and expiration; renewals; governing law; publisher/writer splits and PRO registration; producer royalties and accounting; samples/co-producers; Content ID conflicts; exclusives and preexisting leases; refund/dispute terms; and enforceable execution/acceptance process. Obtain John and Mark's signed approval of final version after legal review.

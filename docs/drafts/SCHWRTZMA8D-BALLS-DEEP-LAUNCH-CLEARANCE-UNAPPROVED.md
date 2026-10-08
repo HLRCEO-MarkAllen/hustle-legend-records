@@ -32,3 +32,19 @@
 - John must approve final listing and final contract; qualified legal reviewer must clear source rights; Mark must authorize publication and payments; John's explicit launch authorization is also required.
 
 **NO PUBLICATION. NO STEM SALES. NO EXCLUSIVE SALES. NO CHECKOUT OR PAYMENTS.**
+
+## Additional protection gates — 2026-10-08, all PENDING
+Updated producer agreement and customer safeguards are proposed, unsigned and unapproved. No technical live-state verification was performed by this document revision.
+- [ ] Verify exact HLR registered entity, existence and Mark's signing authority; representative-capacity signature, no personal guarantee.
+- [ ] John accepts revised producer terms, including documented loss allocation, reciprocal claims protection, proposed liability limits, suspension and termination.
+- [ ] Separate composition/master ownership schedules, source manifests, prior grants and all permissions complete; Eternal Breath/MVP uncertainty resolved.
+- [ ] Reconcile the MP3/WAV offer across all documents; explicitly confirm limits apply to this exact version and settle splits/royalties, territory, cap definitions, video/performance scope, expiry and renewal.
+- [ ] Legal reviewer approves the final completed producer/customer agreements and schedules; obtain final signatures without public personal data.
+- [ ] Identify actual seller/merchant of record, verified direct John payout route, tax duties and receipt seller identity. No account changes authorized.
+- [ ] Set support contact, delivery deadline and response target; prove nondelivery/refund/chargeback process and documented transaction-specific deductions.
+- [ ] Verify server-side capture, merchant/amount/currency/order matching, idempotency and secure MP3/WAV fulfillment; retain evidence. No paid service/live payment test authorized by this revision.
+- [ ] Implement and verify versioned affirmative customer assent, durable receipt/license, usage/Content ID rules and privacy controls.
+- [ ] Document access permissions, immediate suspension capability, accounting export and handling of valid existing licenses after termination.
+- [ ] Separate dated John and Mark launch approvals identify final offer, file manifest, legal approval and contract versions.
+
+The revised producer agreement governs proposed internal revenue/refund allocation; the customer agreement governs customer remedies. Resolve contradictions before execution. This checklist adds requirements to the preparation record and changes no live catalog, database, checkout, permission or payment account.

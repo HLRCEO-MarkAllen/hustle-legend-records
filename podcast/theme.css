@@ -1,32 +1,33 @@
-/* Podcast identity: crimson / graphite / silver. Scoped to podcast pages. */
-:root{--bg:#08090d;--panel:#111319;--gold:#ff526b;--gold2:#ffd0d8;--text:#f4f5f8;--muted:#b4b7c2;--line:#49303b}
-body{background:radial-gradient(ellipse at 85% 0,rgba(182,22,52,.23),transparent 34rem),radial-gradient(ellipse at 0 55%,rgba(79,92,117,.08),transparent 28rem),#08090d}
-body:after{-webkit-text-stroke:1px rgba(255,82,107,.055)}
-.top{background:#090a0fec;border-bottom-color:#49303b}.top:after{background:linear-gradient(90deg,transparent,#c62548,transparent)}
-.brand{color:#f0f1f6;text-shadow:0 0 22px #ff526b22}
-.eyebrow{background:linear-gradient(90deg,#ffd0d8,#ff526b);background-clip:text;-webkit-background-clip:text}
-.label,.desk-preview .label{color:#ff9bae}.lead{color:#bcc0cc}
-.station-heading h1 span{color:#ff526b}
-.station-logo{padding:8px;background:#09090c;border:1px solid #4b303b;border-radius:16px}
-.station-feature{border-color:#633042;background:linear-gradient(130deg,#241019,#101117 65%);box-shadow:0 20px 70px #0005}
-.station-side{background:#0b0d13;border-color:#49303b}
-.empty,.studio-panel,.draft-card,.scene-note{border-color:#49303b}
-.studio-panel{background:linear-gradient(145deg,#13131b,#0c0d12);box-shadow:0 16px 45px #0003}
-.draft-card{background:linear-gradient(135deg,#241019,#0d0f15)}
-.station-contact,.review,.footer{border-color:#39323f}
-.btn{border-color:#694052;background:#12141b;color:#eef0f6}
-.btn.primary{background:linear-gradient(135deg,#aa1938,#cd2b4d);color:#fff;border:1px solid #ff637d}
-.btn:hover{border-color:#ff8298;background:#221520}
-.btn.primary:hover{background:linear-gradient(135deg,#b21c3c,#dd3657);color:#fff}
-.record-btn{background:#c92549;border-color:#ff637d;color:#fff}
-.timer{color:#ff9bae}
-.status-message{background:#20111a;border-left-color:#ff526b}
-.studio-panel input:not([type=checkbox]),.studio-panel textarea,.studio-panel select{background:#0b0d13;border-color:#66505e;color:#f4f5f8}
-.studio-panel input::placeholder,.studio-panel textarea::placeholder{color:#9398a8}
-.studio-panel:focus-within{border-color:#a5445b}
-.scene-note{color:#d8c1c9;background:#151019}
-.desk-tabs a{border-color:#634052;color:#e5c5ce;background:#101118}
-.desk-tabs a:hover{border-color:#ff526b;color:#ffd0d8}
-input[type=checkbox]{accent-color:#cd2b4d}
-a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #ff9bae;outline-offset:3px}
-::selection{background:#b32243;color:#fff}
+/* INVERTED TIME: black, deep purple and chrome. Podcast routes only. */
+:root{--bg:#07060a;--panel:#110c1b;--gold:#ab7bea;--gold2:#e1d3f8;--text:#f3f1f7;--muted:#beb7ca;--line:#443052}
+body{background:radial-gradient(ellipse at 85% 0,rgba(83,32,137,.3),transparent 36rem),radial-gradient(ellipse at 0 55%,rgba(115,94,148,.09),transparent 28rem),#07060a}
+body:after{-webkit-text-stroke:1px rgba(183,151,231,.06)}
+.top{background:#09070fec;border-bottom-color:#443052}.top:after{background:linear-gradient(90deg,transparent,#8e60b9,#dedce5,transparent)}
+.brand{color:#eceaf1;text-shadow:0 0 22px #ab7bea22}
+.eyebrow{background:linear-gradient(90deg,#e1d3f8,#ab7bea);background-clip:text;-webkit-background-clip:text}
+.label,.desk-preview .label{color:#d0acef}.lead{color:#c4bdcf}.links a[aria-current=page]{color:#e1d3f8}
+.station-heading{position:relative;gap:22px}.station-heading>div{flex:1;min-width:0}
+.station-heading h1,.studio-top h1{font-family:Inter,system-ui,Arial,sans-serif;font-weight:950;letter-spacing:-.045em;line-height:1.05}
+.station-heading h1{font-size:clamp(2.4rem,6.8vw,5rem);background:linear-gradient(180deg,#fff 0%,#b8b4c4 38%,#f6f2ff 49%,#918997 70%,#e5d8f9 100%);background-clip:text;-webkit-background-clip:text;color:transparent}
+.station-heading h1 span{color:inherit}.station-heading h1{margin:14px 0 20px}
+.station-logo{width:88px;height:88px;padding:6px;background:#09070c;border:1px solid #56425f;border-radius:12px}
+.clock-emblem{width:clamp(96px,14vw,170px);height:auto;flex:none;filter:drop-shadow(0 0 25px #8046b33b);animation:time-offset 12s ease-in-out infinite}
+@keyframes time-offset{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-4px)}}
+.station-feature{position:relative;isolation:isolate;border-color:#665177;background:linear-gradient(130deg,#211030,#100c16 65%);box-shadow:0 20px 70px #0005}
+.station-feature:before{content:"";position:absolute;z-index:-1;inset:0;background:repeating-linear-gradient(175deg,transparent 0 44px,#a17ac508 45px 46px);pointer-events:none;animation:time-drift 18s ease-in-out infinite}
+@keyframes time-drift{0%,100%{transform:translateY(-8px)}50%{transform:translateY(8px)}}
+.feature-copy h2{font-family:Inter,system-ui,Arial,sans-serif;font-weight:850;letter-spacing:-.03em}
+.station-side{background:#0c0912;border-color:#443052}.empty,.studio-panel,.draft-card,.scene-note{border-color:#443052}
+.studio-panel{background:linear-gradient(145deg,#171021,#0d0a12);box-shadow:0 16px 45px #0003}.draft-card{background:linear-gradient(135deg,#20112d,#0e0b14)}
+.station-contact,.review,.footer{border-color:#3f304b}.footer{background:linear-gradient(180deg,#07060a,#0e0914);color:#b5adbf}
+.btn{border-color:#665176;background:#15101d;color:#eeeaf5;min-height:44px}.btn.primary{background:linear-gradient(135deg,#53306f,#7644a0);color:#fff;border:1px solid #a67ac5}
+.btn:hover{border-color:#d0acef;background:#281833}.btn.primary:hover{background:linear-gradient(135deg,#623780,#8651ac);color:#fff}
+.record-btn{background:#6d3c98;border-color:#a67ac5;color:#fff}.timer{color:#d0acef}.status-message{background:#1e112a;border-left-color:#ab7bea}
+.studio-panel input:not([type=checkbox]),.studio-panel textarea,.studio-panel select{background:#0c0912;border-color:#71577c;color:#f3f1f7}
+.studio-panel input::placeholder,.studio-panel textarea::placeholder{color:#a49bab}.studio-panel:focus-within{border-color:#9e6ec0}
+.scene-note{color:#d8c8e3;background:#170e20}.desk-tabs a{border-color:#665176;color:#dfcdea;background:#130d1b}.desk-tabs a:hover{border-color:#ab7bea;color:#e1d3f8}
+input[type=checkbox]{accent-color:#8d53ba}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #d0acef;outline-offset:3px}
+::selection{background:#6d3c98;color:#fff}#preview h2{font-family:Inter,system-ui,Arial,sans-serif;font-weight:900}
+@media(max-width:760px){.clock-emblem{width:110px}.station-logo{width:64px;height:64px}.station-side{border-top-color:#443052}.station-heading{flex-wrap:wrap;gap:14px}.station-heading>div{flex-basis:100%}.studio-top h1{font-size:clamp(1.8rem,7vw,3rem)}.btn{max-width:100%;white-space:normal}.station-contact .btn{white-space:normal}}
+@media(max-width:400px){.station-heading{display:flex}.station-logo{display:block}.clock-emblem{width:96px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

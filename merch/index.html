@@ -68,8 +68,11 @@
 </div></div>
 
 <div id="artist-stores" style="margin:42px 0;padding:28px;border:1px solid #725727;border-radius:20px;background:linear-gradient(135deg,#17100b,#090909)">
-<div class="eyebrow">HLR SHOP DIRECTORY</div><h2>Shop by artist &amp; team member</h2><p>Find each creator's own merchandise storefront. Purchases are completed with the individual seller; HLR's label store is separate.</p>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px">
+<div class="eyebrow">HLR SHOP DIRECTORY</div><label for="hlr-store-search" style="display:block;margin:16px 0 8px;font-weight:800">Search HLR stores and artists</label>
+<input id="hlr-store-search" type="search" placeholder="Search Mark, Barb!3, Nick, John, SCHWRTZMA8D..." autocomplete="off" aria-controls="hlr-store-results" style="width:100%;max-width:680px;box-sizing:border-box;padding:14px 16px;border:1px solid #84672d;border-radius:12px;background:#101010;color:#fff;font:inherit">
+<p id="hlr-store-count" class="fine" role="status" aria-live="polite">Browse the stores below.</p>
+<h2>Shop by artist &amp; team member</h2><p>Find each creator's own merchandise storefront. Purchases are completed with the individual seller; HLR's label store is separate.</p>
+<div id="hlr-store-results" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px">
 <article class="product"><div class="product-body"><span class="tag">LABEL STORE · LIVE</span><h3>Hustle Legend Records / Mark Allen</h3><p>Official label merchandise, Born 2 Be A Legend designs, and Mark Allen-inspired items.</p><a class="btn primary" href="https://hustlelegendrecords-shop.fourthwall.com/" target="_blank" rel="noopener noreferrer">SHOP HLR &amp; MARK ALLEN</a></div></article>
 <article class="product"><div class="product-body"><span class="tag">HLR COLLECTION · LIVE</span><h3>DJ Nick Nasty / Nick Addezio</h3><p>Nick Nasty replica tees and hoodies are available through the existing HLR store. A separate Nick-owned storefront has not yet been verified.</p><a class="btn primary" href="https://hustlelegendrecords-shop.fourthwall.com/products/nick-nasty-hlr-replica-graphic-tee" target="_blank" rel="noopener noreferrer">SHOP NICK NASTY MERCH</a> <a class="btn" href="../team/dj-nick-nasty/">NICK'S PROFILE</a></div></article>
 <article class="product"><div class="product-body"><span class="tag">INDEPENDENT STORE</span><h3>SCHWRTZMA8D / John Schwartz</h3><p>John's dedicated Fourthwall merchandise shop, separate from HLR label checkout.</p><a class="btn primary" href="https://schwrtzma8d-shop.fourthwall.com/" target="_blank" rel="noopener noreferrer">VISIT SCHWRTZMA8D SHOP</a></div></article>
@@ -81,6 +84,20 @@
 <p class="fine">Products are made to order. Prices may vary by size. Production, payment and fulfillment are handled through Fourthwall.</p>
 </div></section>
 <footer class="footer"><div class="wrap">© 2026 Mark Allen · Hustle Legend Records · <a href="../terms/">Terms</a></div></footer>
+<script>
+(function(){
+const input=document.getElementById('hlr-store-search'),container=document.getElementById('hlr-store-results'),status=document.getElementById('hlr-store-count');
+if(!input||!container||!status)return;
+const cards=Array.from(container.querySelectorAll(':scope > article'));
+function update(){
+const term=input.value.trim().toLocaleLowerCase();
+let visible=0;
+cards.forEach(card=>{const match=!term||card.textContent.toLocaleLowerCase().includes(term);card.hidden=!match;card.style.display=match?'':'none';if(match)visible++});
+status.textContent=term?(visible?visible+' matching store'+(visible===1?'':'s'):'No matching stores yet. Try another artist or browse the HLR team.'):'Showing '+visible+' store listings.';
+}
+input.addEventListener('input',update);update();
+})();
+</script>
 <script src="../site.js"></script>
 </body>
 </html>

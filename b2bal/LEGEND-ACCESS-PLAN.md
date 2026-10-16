@@ -9,7 +9,7 @@ Each physical Born 2 Be A Legend mini-CD unlocks a private digital experience on
 - Website: /b2bal/ public unlock screen; authenticated private player, videos, lyrics, credits and bonuses.
 - Supabase: new isolated legend_* tables and a dedicated Edge Function. Do not reuse HQ, radio or store credentials or alter existing tables.
 - Collectors: one randomly generated high-entropy secret per album; encode in NFC URL with unique identifier and secret. Store **only keyed hashes** of secrets, never plaintext; no secrets in source control or analytics.
-- On tap: HTTPS request validates secret server-side, checks enabled/revoked state, and issues a short-lived HttpOnly Secure SameSite session cookie. Strip credentials from browser URL via redirect before analytics, embeds or third-party scripts load. Set Referrer-Policy: no-referrer and Cache-Control: no-store on unlock routes.
+- On tap: HTTPS request validates secret server-side, checks enabled/revoked state, and issues a four-hour HttpOnly Secure SameSite session cookie. The server enforces a fixed four-hour expiry, after which access to private media and APIs is denied until another authorized NFC tap. An authorized retap starts a fresh four-hour session. Strip credentials from browser URL via redirect before analytics, embeds or third-party scripts load. Set Referrer-Policy: no-referrer and Cache-Control: no-store on unlock routes.
 - Authorization: protect the **media bytes** and APIs with short-lived signed URLs or server-gated streaming; hiding page sections is not protection. Keep Supabase Storage private and enforce RLS. Never expose service-role key to browser.
 - Admin: require authenticated authorized HLR admin identity and explicit role checks for minting, activating, revoking, or viewing aggregate analytics. Rate-limit unlock attempts, audit administrative changes. Avoid collecting names/emails unless required.
 - Media: upload only music/videos with suitable rights, or approved embeds; third-party embeds may expose public URLs or bypass private playback, so do not represent them as exclusive protected content.
@@ -23,4 +23,4 @@ Authorized admins: album inventory, key issuance, activation/revocation, access 
 ## Decisions required
 - Quantity of mini-CDs to issue and whether each gets its own NFC tag.
 - Which songs/video assets are licensed and intended to be exclusive.
-- Whether each key permits multiple devices, and session expiration period.
+- Whether each key permits multiple devices. Session duration is confirmed as four hours per authorized tap.

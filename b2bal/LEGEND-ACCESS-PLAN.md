@@ -8,7 +8,7 @@ Each physical Born 2 Be A Legend mini-CD unlocks a private digital experience on
 ## Architecture
 - Website: /b2bal/ public unlock screen; authenticated private player, videos, lyrics, credits and bonuses.
 - Supabase: new isolated legend_* tables and a dedicated Edge Function. Do not reuse HQ, radio or store credentials or alter existing tables.
-- Collectors: one randomly generated high-entropy secret per album; encode in NFC URL with unique identifier and secret. Store **only keyed hashes** of secrets, never plaintext; no secrets in source control or analytics.
+- Collectors: one randomly generated high-entropy secret per physical album copy; encode in NFC URL with unique identifier and secret. Store **only keyed hashes** of secrets, never plaintext; no secrets in source control or analytics.
 - On tap: HTTPS request validates secret server-side, checks enabled/revoked state, and issues a four-hour HttpOnly Secure SameSite session cookie. The server enforces a fixed four-hour expiry, after which access to private media and APIs is denied until another authorized NFC tap. An authorized retap starts a fresh four-hour session. Strip credentials from browser URL via redirect before analytics, embeds or third-party scripts load. Set Referrer-Policy: no-referrer and Cache-Control: no-store on unlock routes.
 - Authorization: protect the **media bytes** and APIs with short-lived signed URLs or server-gated streaming; hiding page sections is not protection. Keep Supabase Storage private and enforce RLS. Never expose service-role key to browser.
 - Admin: require authenticated authorized HLR admin identity and explicit role checks for minting, activating, revoking, or viewing aggregate analytics. Rate-limit unlock attempts, audit administrative changes. Avoid collecting names/emails unless required.
@@ -32,3 +32,9 @@ Authorized admins: album inventory, key issuance, activation/revocation, access 
 - All collector sessions expire after four hours and require a fresh authorized NFC tap for renewal. Key revocation blocks future sessions and should invalidate existing sessions.
 - Artist access is opt-in, individually approved by HLR CEO. Keep existing staff/HQ, radio and beat store permissions unchanged.
 - Initial release: Mark Allen's Born 2 Be A Legend; future artists/albums use same reusable architecture.
+
+## Implementation checkpoint — cross-origin sessions
+- Supabase Edge Functions run on a different origin than hustlelegendrecords.com. Their cookies cannot simply be assumed to become first-party HLR website cookies. **Do not deploy the earlier cookie design unchanged.**
+- Current review-only API draft uses a four-hour opaque bearer session token, stored only in memory by the future client. A refresh would require another tap unless a carefully reviewed persistence mechanism is implemented. NFC link fragment may contain the secret, which must be removed from browser history before third-party content loads.
+- For a better user experience across refreshes, prefer a same-origin /legend-access/api/ reverse proxy with Secure HttpOnly SameSite cookies, provided the current hosting platform supports it; otherwise assess the risks of a cross-origin token-based flow.
+- The backend code in b2bal/backend/legend-access/index.ts is **not deployed or production-ready**. Missing safeguards include rate limiting, constant-time digest verification, administrative key issuance, protected media delivery, authorization tests, logging redaction, and full collector UI integration. No production credentials should be generated or distributed until these are complete.

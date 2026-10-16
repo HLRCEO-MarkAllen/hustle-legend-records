@@ -24,3 +24,11 @@ Authorized admins: album inventory, key issuance, activation/revocation, access 
 - Quantity of mini-CDs to issue and whether each gets its own NFC tag.
 - Which songs/video assets are licensed and intended to be exclusive.
 - Whether each key permits multiple devices. Session duration is confirmed as four hours per authorized tap.
+
+## Label-wide multi-artist architecture (approved)
+- Platform is reusable for all HLR-approved artists and albums, not just Born 2 Be A Legend. Use scoped artist_id and album_id throughout albums, tracks, videos, media, collector keys, sessions, and analytics.
+- Roles: CEO/platform administrator has ultimate management control; assigned artist managers may edit only their own authorized artist/album content; collectors can view only albums unlocked by their valid sessions.
+- Enforce artist/album isolation in Supabase RLS and Edge Functions; never rely solely on UI hiding. Audit role changes, key issuance and revocation. No automatic grant of publishing or master ownership.
+- All collector sessions expire after four hours and require a fresh authorized NFC tap for renewal. Key revocation blocks future sessions and should invalidate existing sessions.
+- Artist access is opt-in, individually approved by HLR CEO. Keep existing staff/HQ, radio and beat store permissions unchanged.
+- Initial release: Mark Allen's Born 2 Be A Legend; future artists/albums use same reusable architecture.

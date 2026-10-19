@@ -224,7 +224,7 @@ th{color:#8d8da0;font-weight:700}
         <div class="hero"><div><h1>Command Center</h1><p id="welcome">Hustle Legend Records operations at a glance.</p></div><button class="btn primary" onclick="openQuickTask()">+ Quick task</button></div>
         <div id="ceoBrief" class="ceo-brief hidden" aria-label="CEO executive briefing">
           <div class="card section">
-            <div class="ceo-head"><div><div class="ceo-eyebrow">OWNER VIEW · LIVE HQ RECORDS</div><h3>CEO Executive Briefing</h3><p id="ceoUpdated">Reading HQ records…</p></div><span class="badge active">READ ONLY</span></div>
+            <div class="ceo-head"><div><div class="ceo-eyebrow">OWNER VIEW · LIVE HQ RECORDS</div><h3>CEO Executive Briefing</h3><p id="ceoUpdated">Reading HQ records…</p></div><span class="badge active">OWNER AUTHORIZATIONS</span></div>
             <div class="ceo-metrics">
               <div class="ceo-metric"><strong id="ceoTaskCount">—</strong><span>Open tasks</span></div>
               <div class="ceo-metric"><strong id="ceoOverdueCount">—</strong><span>Overdue tasks</span></div>
@@ -232,7 +232,7 @@ th{color:#8d8da0;font-weight:700}
               <div class="ceo-metric"><strong id="ceoAcceptedCount">—</strong><span>Accepted opportunities</span></div>
             </div>
             <div class="grid two">
-              <div class="card section ceo-panel"><h4>CEO Review Queue</h4><div id="ceoQueue" class="list"></div><div id="ceoAccess" class="meta">Pending access status loading…</div><div class="toolbar" style="margin-top:9px"><button class="btn" onclick="window.openHqSection('tasks')">Open tasks</button><button class="btn" onclick="window.openHqSection('team')">Staff approvals</button></div></div>
+              <div class="card section ceo-panel"><h4>CEO Review Queue</h4><div id="ceoQueue" class="list"></div><div id="ceoAccess" class="meta">Pending access status loading…</div><div class="toolbar" style="margin-top:9px"><button class="btn" onclick="window.openHqSection('tasks')">Open tasks</button><button class="btn" onclick="window.openHqSection('team')">Staff approval requests</button></div></div>
               <div class="card section ceo-panel"><h4>Business Follow-up Radar</h4><div id="ceoRadar" class="list"></div><div class="toolbar"><button class="btn" onclick="window.openHqSection('communications')">Messages</button><button class="btn" onclick="window.openHqSection('rights')">Rights</button></div></div>
             </div>
             <div class="ceo-finance" id="ceoFinance"></div>
@@ -590,7 +590,8 @@ function renderCeoBriefing(){
     ...overdue.filter(x=>!approvals.some(a=>a.id===x.id)).map(x=>({task:x,label:'Overdue'}))
   ].slice(0,6);
   $('#ceoQueue').innerHTML=lastHqErrors.includes(0)?empty('Task records unavailable; refresh HQ.'):
-    queue.map(x=>rowHtml(x.task.title,(x.task.assignee_name||'Unassigned')+' · '+(x.task.due_at?fmt(x.task.due_at):'No due date'),badge(x.label))).join('')||
+    queue.map(x=>rowHtml(x.task.title,(x.task.assignee_name||'Unassigned')+' · '+(x.task.due_at?fmt(x.task.due_at):'No due date'),
+    x.label==='Approval flag'?'<button class="btn primary" onclick="window.reviewHqTask(\''+x.task.id+'\')">Review</button>':badge(x.label))).join('')||
     empty('No open tasks flagged for approval or overdue.');
   const radar=[
     ['Waiting replies',comms.filter(x=>x.status==='waiting').length,18],
@@ -606,13 +607,41 @@ function renderCeoBriefing(){
     kpiCount===0?'Financial data: No HQ KPI snapshots recorded. Revenue, profit and reserves are unknown here, not $0. Add source-backed snapshots under Analytics.':
     'Financial data: '+kpiCount+' manually recorded KPI snapshot(s). Review source, period, and reliability under Analytics before using financial figures.';
 }
+
+window.reviewHqTask=id=>{
+  if(staff?.role!=='owner')return;
+  const task=(cache.tasks||[]).find(x=>x.id===id&&x.approval_required&&!['completed','cancelled'].includes(x.status));
+  if(!task){alert('This task no longer awaits approval. Refresh HQ.');return}
+  openModal('Authorize task',
+    '<p><strong>'+esc(task.title)+'</strong></p><p class="meta">Assignee: '+esc(task.assignee_name||'Unassigned')+' · '+esc(task.status)+'</p>'+
+    '<p>'+esc(task.description||'No further task description.')+'</p>'+
+    '<div class="notice">This releases the approval hold. It does not mark the task complete or send money.</div>'+
+    '<label class="meta" for="ceoTaskNote">Optional decision note</label>'+
+    '<textarea id="ceoTaskNote" maxlength="500" placeholder="Why this action is approved"></textarea>'+
+    '<button class="btn primary" id="ceoConfirmTask" onclick="window.confirmHqTaskApproval(\''+task.id+'\')">Authorize task</button>'+
+    '<div id="modalStatus" class="statusbar"></div>');
+};
+window.confirmHqTaskApproval=async id=>{
+  if(staff?.role!=='owner')return;
+  const b=$('#ceoConfirmTask');if(b)b.disabled=true;
+  const {error}=await supabase.rpc('approve_hq_task',{p_task_id:id,p_note:($('#ceoTaskNote')?.value||'').slice(0,500)});
+  if(error){$('#modalStatus').textContent=error.message;if(b)b.disabled=false;return}
+  closeModal();await loadAll();
+};
 function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
 
 function renderTasks(){
   if(!cache.tasks.length){$('#tasksTable').innerHTML=empty('No tasks yet.');return}
   $('#tasksTable').innerHTML='<div class="tablewrap"><table><thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead><tbody>'+cache.tasks.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.assignee_name||'—')+'</td><td>'+badge(x.status)+'</td><td>'+badge(x.priority)+'</td><td>'+esc(fmt(x.due_at))+'</td><td><button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\''+(x.status==='completed'?'todo':'completed')+'\')">'+(x.status==='completed'?'Reopen':'Complete')+'</button></td></tr>').join('')+'</tbody></table></div>';
 }
-window.setTaskStatus=async(id,status)=>{await supabase.from('hq_tasks').update({status}).eq('id',id);await log('task_updated','Task marked '+status,'task',id);loadAll()};
+window.setTaskStatus=async(id,status)=>{
+  const t=(cache.tasks||[]).find(x=>x.id===id);
+  if(t?.approval_required&&status==='completed'&&staff?.role!=='owner'){alert('CEO authorization required before completing this task.');return}
+  const {data,error}=await supabase.from('hq_tasks').update({status}).eq('id',id).select('id').maybeSingle();
+  if(error){alert(error.message);return}
+  if(!data){alert('Update not confirmed. Refresh HQ.');return}
+  await log('task_updated','Task marked '+status,'task',id);await loadAll();
+};
 
 function renderProjects(){
   $('#projectsGrid').innerHTML=cache.projects.length?cache.projects.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+esc(x.title)+'</strong>'+badge(x.status)+'</div><p style="color:var(--muted);font-size:13px">'+esc(x.description||'')+'</p><div class="meta">'+esc(x.category||'')+' · '+esc(x.priority||'')+'</div><div style="height:7px;background:#242433;border-radius:999px;margin-top:12px;overflow:hidden"><div style="height:100%;width:'+Number(x.progress_percent||0)+'%;background:linear-gradient(90deg,#9a7727,#e4c15f)"></div></div></div>').join(''):empty('No projects yet.');
@@ -675,15 +704,53 @@ window.setArtistStep=async(id,status)=>{
 function renderTeam(){
   $('#teamGrid').innerHTML=cache.team.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between;gap:8px"><div><strong>'+esc(x.name)+'</strong><div class="meta">'+esc(x.job_title)+' · '+esc(x.department)+'</div></div>'+badge(x.access_status)+'</div></div>').join('');
 }
+
+let pendingHqAccessRequests=[];
+const CEO_ALLOWED_ROLES=['contributor','producer','station_manager','a_and_r','artist_relations','chairman'];
 async function loadAccessRequests(){
   if(staff?.role!=='owner')return;
   const {data,error}=await supabase.from('hq_access_requests').select('*').eq('status','pending').order('created_at',{ascending:true});
-  if($('#ceoAccess'))$('#ceoAccess').textContent=error?'Pending staff requests: unavailable':(data||[]).length+' pending staff access request(s)';
-  if(error){$('#accessRequestsBox').classList.remove('hidden');$('#accessRequests').innerHTML=empty('Access requests unavailable; check permissions and refresh.');return}
-  $('#accessRequestsBox').classList.remove('hidden');
-  $('#accessRequests').innerHTML=(data||[]).length?(data||[]).map(x=>'<div class="row"><div><strong>'+esc(x.full_name||x.email)+'</strong><div class="meta">'+esc(x.email)+' · requested '+esc(x.requested_role||'team')+'</div></div><div><button class="btn primary" onclick="window.approveAccess(\''+x.id+'\',\''+(x.requested_role||'contributor')+'\')">Approve</button></div></div>').join(''):empty('No pending access requests.');
+  const pane=$('#accessRequestsBox'),list=$('#accessRequests');
+  pane.classList.remove('hidden');
+  if(error){$('#ceoAccess').textContent='Staff access requests unavailable';list.innerHTML=empty('Access requests unavailable.');return}
+  pendingHqAccessRequests=data||[];
+  $('#ceoAccess').textContent=pendingHqAccessRequests.length+' pending staff access request(s)';
+  list.innerHTML=pendingHqAccessRequests.length?pendingHqAccessRequests.map(x=>
+    '<div class="row"><div><strong>'+esc(x.full_name||x.email)+'</strong>'+
+    '<div class="meta">'+esc(x.email)+' · Requested '+esc(x.requested_role||'contributor')+'</div></div>'+
+    '<button class="btn primary" onclick="window.reviewHqAccess(\''+x.id+'\')">Review</button></div>').join(''):empty('No pending staff access requests.');
 }
-window.approveAccess=async(id,role)=>{const {error}=await supabase.rpc('approve_hq_access',{request_id:id,assigned_role:role});if(error)alert(error.message);else{await log('access_approved','Approved HLR HQ staff access','access_request',id);loadAll();loadAccessRequests()}};
+window.reviewHqAccess=id=>{
+  if(staff?.role!=='owner')return;
+  const req=pendingHqAccessRequests.find(x=>x.id===id);
+  if(!req){alert('Request is not in the pending queue. Refresh HQ.');return}
+  const options=CEO_ALLOWED_ROLES.map(r=>'<option value="'+r+'">'+r.replaceAll('_',' ')+'</option>').join('');
+  openModal('Review HQ staff account',
+    '<p><strong>'+esc(req.full_name||'Applicant')+'</strong></p><p class="meta">Email: '+esc(req.email)+'</p>'+
+    '<p class="meta">Requested role: '+esc(req.requested_role||'contributor')+'</p>'+
+    '<div class="notice">Verify the person and email before granting access. Choose their role explicitly. Founder/owner roles cannot be granted here.</div>'+
+    '<label class="meta" for="ceoAssignedRole">Approved role</label><select id="ceoAssignedRole">'+options+'</select>'+
+    '<div class="toolbar" style="margin-top:12px"><button class="btn primary" id="ceoApproveAccessBtn" onclick="window.approveHqAccess(\''+req.id+'\')">Confirm access</button>'+
+    '<button class="btn danger" id="ceoDenyAccessBtn" onclick="window.denyHqAccess(\''+req.id+'\')">Deny request</button></div>'+
+    '<div id="modalStatus" class="statusbar"></div>');
+};
+window.approveHqAccess=async id=>{
+  if(staff?.role!=='owner')return;
+  const role=$('#ceoAssignedRole')?.value;
+  if(!CEO_ALLOWED_ROLES.includes(role)||!pendingHqAccessRequests.some(x=>x.id===id))return;
+  $$('#modalBody button').forEach(b=>b.disabled=true);
+  const {error}=await supabase.rpc('approve_hq_access',{request_id:id,assigned_role:role});
+  if(error){$('#modalStatus').textContent=error.message;$$('#modalBody button').forEach(b=>b.disabled=false);return}
+  await log('access_approved','Approved HLR HQ staff access for '+role,'access_request',id);
+  closeModal();await loadAll();
+};
+window.denyHqAccess=async id=>{
+  if(staff?.role!=='owner'||!pendingHqAccessRequests.some(x=>x.id===id))return;
+  $$('#modalBody button').forEach(b=>b.disabled=true);
+  const {error}=await supabase.rpc('deny_hq_access',{p_request_id:id});
+  if(error){$('#modalStatus').textContent=error.message;$$('#modalBody button').forEach(b=>b.disabled=false);return}
+  closeModal();await loadAll();
+};
 function money(v){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(v||0))}
 function renderComp(){
   const p=cache.compPolicy||{};

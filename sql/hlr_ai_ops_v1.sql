@@ -1,4 +1,4 @@
--- HLR AI Operations v1 (STAGED / NOT APPLIED)
+-- HLR AI Operations v1 (applied 2026-10-19; retained source SQL)
 -- Requires the existing public.staff_profiles, hq_tasks, hq_activity and hq_ai_role_context.
 -- AI work in this phase consists of user/assistant-authored proposals and one
 -- owner-authorized internal task creation action. NO emails, posts, financial

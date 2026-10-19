@@ -165,7 +165,10 @@ function showQueue(){
     card.append(top,el('div',{className:'bodytext'},p.draft_body));
     if(p.review_note)card.append(small('CEO review note: '+p.review_note));
     const buttons=el('div',{className:'btnrow'});
-    if(role==='owner'&&p.status==='pending')buttons.append(action('Review for approval',()=>review(p),'btn gold'));
+    if(role==='owner'&&p.status==='pending'){
+      buttons.append(action('Review for approval',()=>review(p),'btn gold'));
+      buttons.append(action('Reject proposal',()=>reject(p),'btn red'));
+    }
     if(role==='owner'&&p.status==='approved'&&p.action_type==='task_plan')buttons.append(action('Create internal task',()=>execute(p),'btn gold'));
     if(p.status==='executed')buttons.append(el('a',{href:'/hq-v2.html',className:'btn'},'Open HQ tasks'));
     if(buttons.children.length)card.append(buttons);

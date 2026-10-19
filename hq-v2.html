@@ -537,7 +537,7 @@ function nav(page){
   $$('.page').forEach(x=>x.classList.add('hidden')); $('#page-'+page)?.classList.remove('hidden');
   $$('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
 }
-$('[data-page]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
+$$('[data-page]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
 window.openHqSection=page=>{if(['tasks','team','communications','rights','analytics'].includes(page))nav(page)};
 
 async function loadAll(){

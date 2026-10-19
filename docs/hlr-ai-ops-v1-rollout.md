@@ -1,62 +1,61 @@
 # HLR HQ — AI Operations v1 rollout
 
 ## Status
-Code-only feature branch; **database migration not deployed**, **AI model runner not connected**,
+**Database migration installed and RLS/RPC tests passed on October 19, 2026.** Website branch pending merge and post-deployment verification. **AI model runner not connected**,
 **no automatic sending, public publishing, payments, contract actions or rights transfers**.
 
 ## Files
-- \`hq-v2.html\`: navigation to the new in-HQ AI workbench
-- \`hq-ai-ops.html\`: team proposal workbench, same Supabase Auth session as HQ
-- \`sql/hlr_ai_ops_v1.sql\`: staged database migration for role-specific proposals,
+- `hq-v2.html`: navigation to the new in-HQ AI workbench
+- `hq-ai-ops.html`: team proposal workbench, same Supabase Auth session as HQ
+- `sql/hlr_ai_ops_v1.sql`: deployed database migration source for role-specific proposals,
   CEO approvals, and idempotent owner-authorized internal task creation
 
 ## Six department assistants
 | Team | HLR DB role | Allowed proposal categories |
 | --- | --- | --- |
-| Grace | \`chairman\` | all draft categories / strategic review |
-| Nick | \`a_and_r\` | research, task plan, email draft |
-| Danie | \`station_manager\` | social/email draft, task plan, meeting agenda |
-| John | \`producer\` | research, task plan, social draft |
-| Torown | \`artist_relations\` | research, email draft, task plan, meeting agenda |
-| TY | \`contributor\` | podcast outline, task plan, social draft |
+| Grace | `chairman` | all draft categories / strategic review |
+| Nick | `a_and_r` | research, task plan, email draft |
+| Danie | `station_manager` | social/email draft, task plan, meeting agenda |
+| John | `producer` | research, task plan, social draft |
+| Torown | `artist_relations` | research, email draft, task plan, meeting agenda |
+| TY | `contributor` | podcast outline, task plan, social draft |
 
 The migration adds TY's dedicated INVERTED TIME instructions to the existing
-\`hq_ai_role_context\` under the existing \`contributor\` staff role. No new
+`hq_ai_role_context` under the existing `contributor` staff role. No new
 Supabase Auth account or role enum is created.
 
 ## Workflow
 1. Each team member signs into the **existing** HLR HQ identity.
 2. They open **AI Operations** and submit a draft prepared by their assistant.
-3. Server checks active \`staff_profiles\` role, permitted proposal type, and
-   matches \`auth.uid()\` to the submitter. RLS restricts staff to their own items;
+3. Server checks active `staff_profiles` role, permitted proposal type, and
+   matches `auth.uid()` to the submitter. RLS restricts staff to their own items;
    the CEO can see all.
 4. CEO explicitly approves or rejects pending submissions. Decision recorded
-   in the existing \`hq_activity\` table.
-5. Only an **approved \`task_plan\`** displays a second control to create a
-   real task in \`hq_tasks\`. CEO confirms. The server locks the proposal,
+   in the existing `hq_activity` table.
+5. Only an **approved `task_plan`** displays a second control to create a
+   real task in `hq_tasks`. CEO confirms. The server locks the proposal,
    creates one internal task, records the link and activity, and returns the
    existing task on duplicate requests. No other action type has an executor.
 
 ## Deliberate security boundary
-The new AI proposal API is separate from the **legacy \`hq_tasks\` CRUD API**.
+The new AI proposal API is separate from the **legacy `hq_tasks` CRUD API**.
 Current staff task-write permissions remain too broad for autonomous bots.
 **Do not give team AI agents ordinary staff Supabase credentials or direct
-\`hq_tasks\` write access.** Before an autonomous runner is introduced, harden
+`hq_tasks` write access.** Before an autonomous runner is introduced, harden
 legacy task policies with tested department/assignment ownership enforcement,
 then issue purpose-scoped credentials via a server-side integration.
 
-Do not expose \`service_role\` or other Supabase private keys in HTML, AI
+Do not expose `service_role` or other Supabase private keys in HTML, AI
 prompts, Make scenarios shown to staff, or source control.
 
 The currently public/publishable Supabase key in the HQ frontend is intended
 for browsers; its access must remain constrained by RLS.
 
 ## Rollout order
-1. Review PR code and SQL.
-2. Apply \`sql/hlr_ai_ops_v1.sql\` through the authorized Supabase migration
-   workflow (project \`frkzkgmmcfexudikcdef\`).
-3. Re-run security and data integrity tests with **rolled-back** transactions.
-4. Merge website branch only after database is ready and approval is recorded.
+1. [x] Review PR code and SQL.
+2. [x] Applied `sql/hlr_ai_ops_v1.sql` through Supabase migration `hlr_ai_operations_proposal_queue_v1` in existing project.
+3. [x] Validated staff / CEO isolation, role spoof protection, proposal approval, rejection, activity records, and idempotent internal task creation with **rolled-back** transactions. Database has zero test proposals after verification.
+4. [ ] Merge website branch and verify public delivery.
 5. Verify authenticated login and mobile navigation separately as owner,
    Chairman, A&R, Station Manager, Producer, Artist Relations and Contributor.
 6. Create a test proposal for each permitted role and an explicitly forbidden

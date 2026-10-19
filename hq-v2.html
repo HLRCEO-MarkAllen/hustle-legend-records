@@ -103,6 +103,14 @@ th{color:#8d8da0;font-weight:700}
 .ceo-finance{margin-top:14px;background:#211d13;border:1px solid #594c27;border-radius:11px;color:#dec98b;padding:11px;font-size:12px;line-height:1.5}
 @media(max-width:900px){.ceo-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.ceo-head{flex-direction:column}.ceo-metric strong{font-size:22px}}
+
+.ceo-today{border:1px solid #78602d;background:linear-gradient(135deg,#211d12,#12121a);border-radius:14px;padding:15px;margin-bottom:16px}
+.ceo-today-head,.ceo-today-row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.ceo-today-head h4{font-size:20px;margin:4px 0}.ceo-today-head p{color:var(--muted);font-size:11px}
+.ceo-today-row{background:#13131b;border:1px solid #363028;border-radius:11px;padding:12px;margin:8px 0}
+.ceo-today-row strong{font-size:13px;overflow-wrap:anywhere}.ceo-today-row .meta{overflow-wrap:anywhere;line-height:1.5}
+.ceo-today-row .btn{flex-shrink:0}.ceo-today-foot{border-top:1px solid #393529;padding-top:10px;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:560px){.ceo-today-head,.ceo-today-row{flex-direction:column;align-items:stretch}.ceo-today-row .btn{width:100%}}
 @media(max-width:900px){
  .layout{grid-template-columns:1fr}
  .sidebar{display:none}
@@ -225,6 +233,12 @@ th{color:#8d8da0;font-weight:700}
         <div id="ceoBrief" class="ceo-brief hidden" aria-label="CEO executive briefing">
           <div class="card section">
             <div class="ceo-head"><div><div class="ceo-eyebrow">OWNER VIEW · LIVE HQ RECORDS</div><h3>CEO Executive Briefing</h3><p id="ceoUpdated">Reading HQ records…</p></div><span class="badge active">OWNER AUTHORIZATIONS</span></div>
+
+            <section id="ceoDaily" class="ceo-today" aria-labelledby="ceoDailyHeading">
+              <div class="ceo-today-head"><div><div class="ceo-eyebrow">OWNER DAILY FOCUS · HQ DATA</div><h4 id="ceoDailyHeading">Today's Top 3 Actions</h4><p id="ceoDailyStamp">Reading HQ records…</p></div><button class="btn" type="button" id="ceoDailyRefresh" onclick="window.refreshCeoDaily()">↻ Refresh</button></div>
+              <div id="ceoDailyActions" aria-live="polite"></div>
+              <div class="ceo-today-foot"><div id="ceoDailyActivity"></div><div id="ceoDailyCoverage"></div></div>
+            </section>
             <div class="ceo-metrics">
               <div class="ceo-metric"><strong id="ceoTaskCount">—</strong><span>Open tasks</span></div>
               <div class="ceo-metric"><strong id="ceoOverdueCount">—</strong><span>Overdue tasks</span></div>
@@ -367,6 +381,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
 const supabase=createClient('https://frkzkgmmcfexudikcdef.supabase.co','sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9');
 let session=null, staff=null, cache={};
 let lastHqRefresh=null, lastHqErrors=[];
+let pendingHqAccessRequests=[],ceoAccessLoaded=false,ceoAccessError=false;
 let recoveryMode=new URLSearchParams(window.location.search).get('recovery')==='1';
 const HQ_URL='https://hustlelegendrecords.com/hq-v2.html';
 
@@ -522,7 +537,7 @@ function nav(page){
   $$('.page').forEach(x=>x.classList.add('hidden')); $('#page-'+page)?.classList.remove('hidden');
   $$('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
 }
-$('[data-page]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
+$$('[data-page]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.page)));
 window.openHqSection=page=>{if(['tasks','team','communications','rights','analytics'].includes(page))nav(page)};
 
 async function loadAll(){
@@ -551,8 +566,9 @@ async function loadAll(){
    lastHqRefresh=new Date();
    lastHqErrors=r.map((response,i)=>response.error?i:null).filter(i=>i!==null);
   cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[],artists:r[16].data||[],artistSteps:r[17].data||[],communications:r[18].data||[]};
+  if(staff?.role==='owner'){ceoAccessLoaded=false;ceoAccessError=false;}
   render();
-  if(staff.role==='owner') loadAccessRequests();
+  if(staff?.role==='owner')loadAccessRequests();
 }
 
 function render(){
@@ -567,7 +583,7 @@ function render(){
   $('#pipelineList').innerHTML=(cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).slice(0,6).map(x=>rowHtml(x.title,(x.opportunity_type||'opportunity')+(x.next_action?' · '+x.next_action:''),badge(x.stage))).join('')||empty('No active opportunities.'));
   $('#meetingList').innerHTML=(cache.meetings.filter(x=>new Date(x.ends_at)>new Date()).slice(0,5).map(x=>rowHtml(x.title,fmt(x.starts_at),badge(x.status))).join('')||empty('No upcoming meetings.'));
 
-  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderCommunications();renderArtists();renderTeam();renderComp();renderActivity();renderRadio();renderCeoBriefing();
+  renderTasks();renderProjects();renderOpps();renderRights();renderMeetings();renderKpis();renderCommunications();renderArtists();renderTeam();renderComp();renderActivity();renderRadio();renderCeoBriefing();renderCeoDaily();
 }
 
 function renderCeoBriefing(){
@@ -628,6 +644,73 @@ window.confirmHqTaskApproval=async id=>{
   if(error){$('#modalStatus').textContent=error.message;if(b)b.disabled=false;return}
   closeModal();await loadAll();
 };
+
+function renderCeoDaily(){
+  if(staff?.role!=='owner')return;
+  const now=Date.now(),ok=i=>!lastHqErrors.includes(i),items=[];
+  const date=v=>{const t=v?Date.parse(v):NaN;return Number.isFinite(t)?t:null};
+  const add=(score,kind,title,detail,action,id='',label='Open')=>items.push({score,kind,title,detail,action,id,label});
+  if(ceoAccessLoaded&&!ceoAccessError)for(const r of pendingHqAccessRequests)
+    add(5,'access','Review staff access request',(r.full_name||'Applicant')+' · Verify identity and permissions','access',r.id,'Review');
+  if(ok(0))for(const t of (cache.tasks||[]).filter(t=>!['completed','cancelled'].includes(t.status))){
+    if(t.approval_required){add(10,'approval',t.title,'Requires CEO task authorization · '+(t.assignee_name||'Unassigned'),'task',t.id,'Review');continue}
+    const due=date(t.due_at),pr=t.priority==='urgent'?0:t.priority==='high'?1:2;
+    if(due!==null&&due<now)add(20+pr,'overdue',t.title,'Overdue since '+fmt(t.due_at),'tasks','','Tasks');
+    else if(t.status==='needs_review')add(30,'review',t.title,'Task requires review','tasks','','Tasks');
+    else if(pr<2&&due!==null&&due<=now+86400000)add(35+pr,'due',t.title,'Due soon · '+fmt(t.due_at),'tasks','','Tasks');
+  }
+  if(ok(2))for(const o of cache.opps||[]){
+    if(['completed','rejected'].includes(o.stage)||!o.next_action)continue;
+    const next=date(o.next_action_at)??date(o.deadline);
+    if(next!==null&&next<=now)add(40,'opportunity',o.title,'Next step due · '+o.next_action,'opportunities','','Pipeline');
+  }
+  if(ok(18)){
+    const follow=(cache.communications||[]).filter(c=>c.status==='follow_up');
+    if(follow.length)add(46,'communication',follow.length+' email follow-up'+(follow.length===1?'':'s'),
+      'Latest: '+(follow[0].subject||'Business correspondence'),'communications','','Messages');
+  }
+  if(ok(4)){
+    const flagged=(cache.rights||[]).filter(r=>['review','restricted'].includes(r.clearance_flag));
+    if(flagged.length)add(60,'rights',flagged.length+' rights clearance flag'+(flagged.length===1?'':'s'),
+      'Review documentation before licensing decisions','rights','','Rights');
+  }
+  items.sort((a,b)=>a.score-b.score||a.title.localeCompare(b.title));
+  const top=[],kinds=new Set();
+  for(const i of items)if(!kinds.has(i.kind)&&top.length<3){top.push(i);kinds.add(i.kind)}
+  for(const i of items)if(top.length<3&&!top.includes(i))top.push(i);
+  $('#ceoDailyStamp').textContent='Updated '+(lastHqRefresh?lastHqRefresh.toLocaleString():'not yet')+' · Auto-rebuilds on login';
+  $('#ceoDailyActions').innerHTML=top.length?top.map((i,n)=>
+    '<div class="ceo-today-row"><div><div class="ceo-eyebrow">PRIORITY '+(n+1)+'</div><strong>'+esc(i.title)+'</strong>'+
+    '<div class="meta">'+esc(i.detail)+'</div></div><button class="btn" type="button" data-ceo-action="'+esc(i.action)+
+    '" data-ceo-id="'+esc(i.id)+'">'+esc(i.label)+'</button></div>').join(''):
+    empty(ok(0)&&ok(2)&&ok(18)&&ok(4)&&ceoAccessLoaded&&!ceoAccessError?
+      'No urgent actions identified in current HQ records.':'Not enough source data yet to rank priorities. Refresh HQ.');
+  if(ok(8)){
+    const recent=(cache.activity||[]).filter(a=>{const t=date(a.occurred_at);return t!==null&&t>=now-86400000&&t<=now});
+    $('#ceoDailyActivity').textContent=recent.length?
+      'Recent activity: '+recent.length+' event(s) in past 24h among latest 40 records. Most recent: '+(recent[0].summary||recent[0].action||'Activity recorded'):
+      'Recent activity: no matching events in past 24h among last 40 records.';
+  }else $('#ceoDailyActivity').textContent='Recent activity source unavailable.';
+  $('#ceoDailyCoverage').textContent=(lastHqErrors.length?lastHqErrors.length+' HQ source(s) unavailable. ':'Data-based priorities; confirm before acting. ')+
+    (!ceoAccessLoaded?'Staff access queue loading. ':ceoAccessError?'Staff access queue unavailable. ':'')+
+    (!ok(6)?'Financial KPIs unavailable. ':(cache.kpis||[]).length?'Financial metrics are recorded in Analytics. ':'No verified financial KPI snapshots; revenue unknown. ')+
+    'No automatic emails or approvals.';
+}
+window.refreshCeoDaily=async()=>{
+  if(staff?.role!=='owner')return;
+  const b=$('#ceoDailyRefresh');b.disabled=true;b.textContent='Refreshing…';
+  try{await loadAll()}catch(e){$('#ceoDailyCoverage').textContent='Unable to refresh; try again.'}
+  finally{b.disabled=false;b.textContent='↻ Refresh'}
+};
+$('#ceoDailyActions').addEventListener('click',event=>{
+  if(staff?.role!=='owner')return;
+  const b=event.target.closest('button[data-ceo-action]');if(!b)return;
+  const a=b.dataset.ceoAction,id=b.dataset.ceoId;
+  if(a==='task')window.reviewHqTask(id);
+  else if(a==='access')window.reviewHqAccess(id);
+  else if(['tasks','opportunities','communications','rights'].includes(a))nav(a);
+});
+
 function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
 
 function renderTasks(){
@@ -714,20 +797,20 @@ function renderTeam(){
   $('#teamGrid').innerHTML=cache.team.map(x=>'<div class="card section"><div style="display:flex;justify-content:space-between;gap:8px"><div><strong>'+esc(x.name)+'</strong><div class="meta">'+esc(x.job_title)+' · '+esc(x.department)+'</div></div>'+badge(x.access_status)+'</div></div>').join('');
 }
 
-let pendingHqAccessRequests=[];
 const CEO_ALLOWED_ROLES=['contributor','producer','station_manager','a_and_r','artist_relations','chairman'];
 async function loadAccessRequests(){
   if(staff?.role!=='owner')return;
   const {data,error}=await supabase.from('hq_access_requests').select('*').eq('status','pending').order('created_at',{ascending:true});
   const pane=$('#accessRequestsBox'),list=$('#accessRequests');
   pane.classList.remove('hidden');
-  if(error){$('#ceoAccess').textContent='Staff access requests unavailable';list.innerHTML=empty('Access requests unavailable.');return}
-  pendingHqAccessRequests=data||[];
+  if(error){pendingHqAccessRequests=[];ceoAccessLoaded=true;ceoAccessError=true;$('#ceoAccess').textContent='Staff access requests unavailable';list.innerHTML=empty('Access requests unavailable.');renderCeoDaily();return}
+  pendingHqAccessRequests=data||[];ceoAccessLoaded=true;ceoAccessError=false;
   $('#ceoAccess').textContent=pendingHqAccessRequests.length+' pending staff access request(s)';
   list.innerHTML=pendingHqAccessRequests.length?pendingHqAccessRequests.map(x=>
     '<div class="row"><div><strong>'+esc(x.full_name||x.email)+'</strong>'+
     '<div class="meta">'+esc(x.email)+' · Requested '+esc(x.requested_role||'contributor')+'</div></div>'+
     '<button class="btn primary" onclick="window.reviewHqAccess(\''+x.id+'\')">Review</button></div>').join(''):empty('No pending staff access requests.');
+  renderCeoDaily();
 }
 window.reviewHqAccess=id=>{
   if(staff?.role!=='owner')return;

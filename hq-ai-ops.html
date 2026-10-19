@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#0b0b10">
+<title>HLR AI Operations — Team HQ</title>
+<style>
+:root{--bg:#0b0b10;--panel:#171720;--line:#35323c;--gold:#f0d278;--text:#f4f4f6;--muted:#a2a2b0;--green:#8dd9ac}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 0 0,#251f12,transparent 42%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}
+a{color:var(--gold)}button,select,input,textarea{font:inherit}
+.header{border-bottom:1px solid var(--line);padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0e0e14}
+.brand{font-weight:900;color:var(--gold);letter-spacing:.1em;font-size:16px}.brand small{display:block;color:var(--muted);letter-spacing:.06em;font-size:10px;margin-top:3px}
+main{max-width:1260px;margin:auto;padding:22px 18px 60px}.hero{display:flex;gap:14px;justify-content:space-between;align-items:center;margin-bottom:18px}
+h1{font-size:29px;margin:4px 0 6px}h2{font-size:17px;margin:0 0 12px}.sub{font-size:12px;color:var(--muted);line-height:1.5}
+.eyebrow{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.16em;font-weight:900}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{border:1px solid var(--line);border-radius:17px;background:linear-gradient(140deg,#191820,#111117);padding:17px;margin-bottom:14px}
+.warning{border:1px solid #75602e;color:#e8c976;border-radius:12px;padding:12px;background:#211c11;font-size:12px;line-height:1.6;margin-bottom:15px}
+label{display:block;font-size:12px;color:#c9c7d0;margin-bottom:5px}select,input,textarea{width:100%;border:1px solid #45404b;background:#0d0d13;color:#fff;border-radius:10px;padding:11px;margin-bottom:12px}textarea{min-height:150px;resize:vertical}
+.btn{display:inline-block;text-decoration:none;cursor:pointer;background:#24232b;color:#fff;border:1px solid #48404c;border-radius:10px;padding:9px 13px;font-weight:700;font-size:13px}
+.btn.gold{color:#181309;background:linear-gradient(#edd27f,#bd9b38);border-color:#e6c566}.btn.red{color:#ffabad;border-color:#7f3940;background:#291317}.btn:disabled{opacity:.5;cursor:wait}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted)}.status{font-size:12px;margin:8px 0;min-height:16px;line-height:1.5}
+.queue{display:grid;gap:10px}.item{border:1px solid #34313c;background:#101016;border-radius:13px;padding:14px;display:grid;gap:10px}
+.itemhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.itemhead strong{font-size:15px;overflow-wrap:anywhere}
+.badge{font-size:10px;text-transform:uppercase;letter-spacing:.07em;border:1px solid #686049;color:var(--gold);padding:5px 8px;border-radius:99px;white-space:nowrap}
+.bodytext{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;font-size:12px;color:#d2d0d9;max-height:200px;overflow:auto}
+.mini{font-size:11px;color:var(--muted);line-height:1.5}
+.hidden{display:none!important}.back{white-space:nowrap}.options{color:var(--muted);font-size:12px;line-height:1.7}
+@media(max-width:740px){.grid{grid-template-columns:1fr}.header{padding:13px}.hero{align-items:flex-start;flex-direction:column}.back{align-self:stretch;text-align:center}.itemhead{flex-direction:column}main{padding:14px 12px 45px}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="brand">♛ HLR HQ <small>AI OPERATIONS MANAGER</small></div>
+  <a class="btn back" href="/hq-v2.html">← Return to HQ</a>
+</header>
+<main>
+  <div class="hero">
+    <div><div class="eyebrow">Six departments · One CEO · Controlled execution</div><h1>AI Operations Manager</h1><p class="sub" id="identity">Checking existing HLR HQ sign-in…</p></div>
+    <button class="btn" id="refresh" type="button">↻ Refresh</button>
+  </div>
+  <div class="warning">This workspace is an approval-backed proposal queue, <strong>not an autonomous model runner</strong>. Assistants can prepare draft content for authorized team members to submit. Only an approved internal task plan can create a real HQ task, and only after a separate CEO confirmation. No external messages, public posts, payouts, contracts, security changes, or rights transfers occur here.</div>
+  <div class="warning hidden" id="backendWarning">The AI Operations database migration is not available. This page is inactive until the reviewed Supabase migration is applied.</div>
+  <div class="grid">
+    <section class="panel">
+      <h2>Submit team work</h2>
+      <div class="mini" id="roleDefinition"></div>
+      <div class="status" id="submitMessage" aria-live="polite"></div>
+      <form id="proposalForm">
+        <label for="kind">Draft category</label>
+        <select id="kind" required></select>
+        <label for="title">Proposal title</label>
+        <input id="title" minlength="3" maxlength="180" required placeholder="What should HLR review?">
+        <label for="draft">Draft / proposed task instructions</label>
+        <textarea id="draft" minlength="5" maxlength="10000" required placeholder="Paste an AI-assisted research brief, drafted post, episode outline or proposed internal task."></textarea>
+        <button class="btn gold" id="submit" type="submit">Submit for review</button>
+      </form>
+    </section>
+    <section class="panel">
+      <h2>AI role boundaries</h2>
+      <div class="options" id="roleDetails">Loading existing role permissions…</div>
+      <div class="warning" style="margin-top:15px">
+        Never give an AI assistant the Supabase service-role key, bank credentials, or the CEO's login. Each team member or approved connector must act with its own permitted identity.
+      </div>
+    </section>
+  </div>
+  <section class="panel">
+    <div class="hero"><div><h2>HQ review queue</h2><p class="mini" id="queueCount">Loading…</p></div></div>
+    <div class="queue" id="queue" aria-live="polite"></div>
+  </section>
+  <div class="mini">Source: existing HLR Supabase project · Decisions logged in HQ Activity · Other HQ modules unchanged</div>
+</main>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
+const supabase=createClient('https://frkzkgmmcfexudikcdef.supabase.co','sb_publishable_UlEz_-eBThXUgesLl036RQ_J_-Edto9');
+const $=id=>document.getElementById(id);
+const types={
+  task_plan:'Internal task plan',
+  research_brief:'Research brief',
+  draft_email:'Email draft (not sent)',
+  draft_post:'Social draft (not published)',
+  meeting_agenda:'Meeting agenda',
+  podcast_outline:'INVERTED TIME outline',
+  rights_review:'Rights review notes'
+};
+const roleActions={
+  owner:Object.keys(types),
+  chairman:Object.keys(types),
+  a_and_r:['task_plan','research_brief','draft_email'],
+  artist_relations:['task_plan','research_brief','draft_email','meeting_agenda'],
+  station_manager:['task_plan','draft_post','draft_email','meeting_agenda'],
+  producer:['task_plan','research_brief','draft_post'],
+  contributor:['task_plan','podcast_outline','draft_post']
+};
+let user=null,role=null,proposals=[],busy=false,backendAvailable=false;
+function status(message){$('submitMessage').textContent=message}
+function el(tag,attrs={},text=''){
+  const node=document.createElement(tag);
+  for(const [key,value] of Object.entries(attrs)){
+    if(key==='className')node.className=value;
+    else if(key==='type')node.type=value;
+    else node.setAttribute(key,value);
+  }
+  if(text)node.textContent=text;
+  return node;
+}
+function date(v){return v?new Date(v).toLocaleString():'—'}
+function lock(locked){$('submit').disabled=locked;$('submit').textContent=locked?'Working…':'Submit for review'}
+async function start(){
+  const {data:{user:current},error}=await supabase.auth.getUser();
+  if(error||!current){$('identity').textContent='Not signed in. Sign in through your existing HQ page.';$('proposalForm').classList.add('hidden');$('queueCount').textContent='Sign-in required';return}
+  const {data:profile,error:profileError}=await supabase.from('staff_profiles').select('role,active,display_name').eq('user_id',current.id).maybeSingle();
+  if(profileError||!profile?.active){$('identity').textContent='Your HQ staff access is not active. Return to HQ for approval.';$('proposalForm').classList.add('hidden');return}
+  user=current;role=profile.role;
+  $('identity').textContent='Signed in: '+profile.display_name+' · '+role.replaceAll('_',' ')+' · existing HQ identity';
+  await refresh();
+}
+async function refresh(){
+  if(!user)return;
+  $('refresh').disabled=true;
+  try{
+    const [config,items]=await Promise.all([
+      supabase.from('hq_ai_role_context').select('role_key,role_name,mission,allowed_actions,requires_ceo_approval').eq('role_key',role).maybeSingle(),
+      supabase.from('hq_ai_proposals').select('*').order('created_at',{ascending:false}).limit(100)
+    ]);
+    backendAvailable=!config.error&&!items.error&&!!config.data;
+    $('backendWarning').classList.toggle('hidden',backendAvailable);
+    $('proposalForm').classList.toggle('hidden',!backendAvailable);
+    if(!backendAvailable){
+      $('queueCount').textContent='Database migration or role configuration required.';
+      $('queue').replaceChildren();
+      $('roleDefinition').textContent='AI role data is not yet available.';
+      return;
+    }
+    const cfg=config.data,allowed=roleActions[role]||[];
+    $('roleDefinition').textContent=cfg.role_name+' — '+cfg.mission;
+    $('roleDetails').replaceChildren();
+    $('roleDetails').append(el('p',{},'Role: '+cfg.role_name),
+      el('p',{},'Allowed proposal categories: '+allowed.map(x=>types[x]).join(' · ')),
+      el('p',{},'CEO approval required for: '+(cfg.requires_ceo_approval||[]).join(' · ')));
+    const selected=$('kind').value;
+    $('kind').replaceChildren();
+    for(const name of allowed)$('kind').append(el('option',{value:name},types[name]));
+    if(allowed.includes(selected))$('kind').value=selected;
+    proposals=items.data||[];
+    $('queueCount').textContent=proposals.length+' visible proposals · based on database role permissions.';
+    showQueue();
+  }catch(err){$('queueCount').textContent='Unable to refresh: '+(err.message||'Unknown error')}
+  finally{$('refresh').disabled=false}
+}
+function small(label){return el('div',{className:'mini'},label)}
+function action(text,handler,style='btn'){
+  const button=el('button',{type:'button',className:style},text);button.addEventListener('click',handler);return button;
+}
+function showQueue(){
+  const root=$('queue');root.replaceChildren();
+  if(!proposals.length){root.append(small('No proposals in your authorized queue yet.'));return}
+  for(const p of proposals){
+    const card=el('article',{className:'item'});
+    const top=el('div',{className:'itemhead'}),left=el('div');
+    left.append(small((p.role_key||'').replaceAll('_',' ').toUpperCase()+' · '+(types[p.action_type]||p.action_type)),
+      el('strong',{},p.title),small('Created: '+date(p.created_at)));
+    top.append(left,el('span',{className:'badge'},p.status));
+    card.append(top,el('div',{className:'bodytext'},p.draft_body));
+    if(p.review_note)card.append(small('CEO review note: '+p.review_note));
+    const buttons=el('div',{className:'btnrow'});
+    if(role==='owner'&&p.status==='pending')buttons.append(action('Review for approval',()=>review(p),'btn gold'));
+    if(role==='owner'&&p.status==='approved'&&p.action_type==='task_plan')buttons.append(action('Create internal task',()=>execute(p),'btn gold'));
+    if(p.status==='executed')buttons.append(el('a',{href:'/hq-v2.html',className:'btn'},'Open HQ tasks'));
+    if(buttons.children.length)card.append(buttons);
+    root.append(card);
+  }
+}
+async function review(p){
+  if(role!=='owner'||p.status!=='pending')return;
+  const details=prompt('Optional CEO review note (maximum 1,000 characters):','');
+  if(details===null)return;
+  const answer=confirm('Approve this proposal for internal use?\n\nOK = Approve; Cancel = do not decide.');
+  // Decline separately so a dismissed confirmation never rejects anything.
+  const decision=answer?'approved':null;
+  if(!decision)return;
+  if(details.length>1000){alert('Review note too long');return}
+  await runRpc('hq_review_ai_proposal',{p_proposal_id:p.id,p_decision:decision,p_review_note:details},'CEO proposal approval');
+}
+async function reject(p){
+  if(role!=='owner'||p.status!=='pending')return;
+  const note=prompt('Reason for rejecting this proposal (optional):','');
+  if(note===null)return;
+  if(note.length>1000){alert('Note too long');return}
+  if(!confirm('Reject this proposal?'))return;
+  await runRpc('hq_review_ai_proposal',{p_proposal_id:p.id,p_decision:'rejected',p_review_note:note},'CEO proposal rejection');
+}
+async function execute(p){
+  if(role!=='owner'||p.status!=='approved'||p.action_type!=='task_plan')return;
+  if(!confirm('Create one internal HLR task from this CEO-approved plan?\nNo emails, publishing, rights or payments will occur.'))return;
+  await runRpc('hq_execute_ai_task_plan',{p_proposal_id:p.id},'Internal task creation');
+}
+async function runRpc(name,args,label){
+  if(busy)return;busy=true;
+  try{
+    const {error}=await supabase.rpc(name,args);
+    if(error)throw error;
+    status(label+' succeeded. HQ data refreshed.');
+    await refresh();
+  }catch(err){status(label+' failed: '+(err.message||'Check permissions.'))}
+  finally{busy=false}
+}
+$('proposalForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(busy||!backendAvailable||!user)return;
+  const actionType=$('kind').value,title=$('title').value.trim(),body=$('draft').value.trim();
+  if(!(roleActions[role]||[]).includes(actionType)||title.length<3||body.length<5){status('Invalid type, title or body.');return}
+  busy=true;lock(true);
+  try{
+    const {error}=await supabase.rpc('hq_submit_ai_proposal',{
+      p_action_type:actionType,p_title:title,p_draft_body:body,p_request_key:crypto.randomUUID()
+    });
+    if(error)throw error;
+    $('title').value='';$('draft').value='';
+    status('Draft proposal submitted. Nothing was executed or sent.');
+    await refresh();
+  }catch(err){status('Submission failed: '+(err.message||'Check HQ permissions.'))}
+  finally{busy=false;lock(false)}
+});
+$('refresh').addEventListener('click',refresh);
+start();
+</script>
+</body>
+</html>

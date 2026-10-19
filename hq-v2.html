@@ -86,6 +86,20 @@ table{width:100%;border-collapse:collapse}
 th,td{padding:10px 8px;border-bottom:1px solid #222231;text-align:left;font-size:12px;white-space:nowrap}
 th{color:#8d8da0;font-weight:700}
 .notice{padding:12px;border:1px solid #4f4628;background:#1a170e;border-radius:12px;color:#dbc77a;font-size:13px}
+.task-summary{margin-bottom:14px}
+.task-summary .kpi{box-shadow:none}
+.task-board{display:grid;gap:14px}
+.task-group{background:linear-gradient(180deg,var(--panel),#0f0f16);border:1px solid var(--line);border-radius:16px;padding:15px}
+.task-group-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:11px}
+.task-group-head h3{margin:0;font-size:16px}
+.task-group-head p{margin:3px 0 0;color:var(--muted);font-size:11px}
+.task-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid #242435;border-radius:12px;background:#0d0d13}
+.task-card+.task-card{margin-top:8px}
+.task-card strong{display:block;overflow-wrap:anywhere}
+.task-card .meta{line-height:1.45}
+.task-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.task-archive-note{margin-top:12px;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:680px){.task-card{grid-template-columns:1fr}.task-actions{justify-content:flex-start}.task-summary{grid-template-columns:1fr}}
 
 /* Owner-only CEO executive briefing */
 .ceo-brief{margin-bottom:16px}
@@ -260,7 +274,7 @@ th{color:#8d8da0;font-weight:700}
           <div class="card kpi"><div class="label">Team active</div><div class="value" id="kpiTeam">—</div><div class="foot">Approved HQ users</div></div>
         </div>
         <div class="grid two">
-          <div class="card section"><h3>Priority queue</h3><div id="priorityList" class="list"></div></div>
+          <div class="card section"><h3>Active task queue</h3><div class="meta" style="margin-bottom:10px">Pending and waiting work only. Old completed work is archived from this view.</div><div id="priorityList" class="list"></div></div>
           <div class="card section"><h3>Latest alerts</h3><div id="alertList" class="list"></div></div>
         </div>
         <div class="grid two" style="margin-top:14px">
@@ -271,7 +285,12 @@ th{color:#8d8da0;font-weight:700}
 
       <section id="page-tasks" class="page hidden">
         <div class="hero"><div><h1>Tasks</h1><p>Daily execution, approvals and accountability.</p></div><button class="btn primary" onclick="openTaskModal()">+ New task</button></div>
-        <div class="card section"><div id="tasksTable"></div></div>
+        <div class="grid three task-summary">
+          <div class="card kpi"><div class="label">Pending</div><div class="value" id="taskPendingCount">—</div><div class="foot">Todo, in progress, review</div></div>
+          <div class="card kpi"><div class="label">Waiting</div><div class="value" id="taskWaitingCount">—</div><div class="foot">Blocked on replies or people</div></div>
+          <div class="card kpi"><div class="label">Completed</div><div class="value" id="taskCompletedCount">—</div><div class="foot">Last 7 days only</div></div>
+        </div>
+        <div id="tasksTable" class="task-board"></div>
       </section>
 
       <section id="page-projects" class="page hidden">
@@ -573,14 +592,27 @@ async function loadAll(){
   if(staff?.role==='owner')loadAccessRequests();
 }
 
+function taskPriorityValue(v){return ({urgent:0,high:1,normal:2,low:3})[v]??4}
+function taskDueValue(v){const t=v?Date.parse(v):NaN;return Number.isFinite(t)?t:Number.MAX_SAFE_INTEGER}
+function sortTasks(a,b){return taskPriorityValue(a.priority)-taskPriorityValue(b.priority)||taskDueValue(a.due_at)-taskDueValue(b.due_at)||String(a.title||'').localeCompare(String(b.title||''))}
+function taskBuckets(){
+  const tasks=cache.tasks||[];
+  const cutoff=Date.now()-(7*24*60*60*1000);
+  const pending=tasks.filter(x=>['todo','in_progress','needs_review'].includes(x.status)).sort(sortTasks);
+  const waiting=tasks.filter(x=>x.status==='waiting').sort(sortTasks);
+  const completed=tasks.filter(x=>x.status==='completed'&&Date.parse(x.updated_at||x.created_at||0)>=cutoff)
+    .sort((a,b)=>Date.parse(b.updated_at||b.created_at||0)-Date.parse(a.updated_at||a.created_at||0));
+  const archived=tasks.filter(x=>x.status==='cancelled'||(x.status==='completed'&&Date.parse(x.updated_at||x.created_at||0)<cutoff));
+  return {pending,waiting,completed,archived};
+}
 function render(){
-  const openTasks=cache.tasks.filter(x=>!['completed','cancelled'].includes(x.status));
+  const buckets=taskBuckets(),openTasks=[...buckets.pending,...buckets.waiting];
   $('#kpiTasks').textContent=openTasks.length;
   $('#kpiProjects').textContent=cache.projects.filter(x=>['active','planned','waiting','blocked'].includes(x.status)).length;
   $('#kpiOpps').textContent=cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).length;
   $('#kpiTeam').textContent=cache.team.filter(x=>x.access_status==='active').length;
 
-  $('#priorityList').innerHTML=(openTasks.filter(x=>['urgent','high'].includes(x.priority)).slice(0,6).map(x=>rowHtml(x.title,(x.assignee_name||'Unassigned')+' · '+(x.due_at?fmt(x.due_at):'No due date'),badge(x.priority))).join('')||empty('No high-priority tasks.'));
+  $('#priorityList').innerHTML=(openTasks.slice(0,6).map(x=>rowHtml(x.title,(x.status||'task').replaceAll('_',' ')+' · '+(x.assignee_name||'Unassigned')+' · '+(x.due_at?fmt(x.due_at):'No due date'),badge(x.priority))).join('')||empty('No pending or waiting tasks.'));
   $('#alertList').innerHTML=(cache.alerts.slice(0,6).map(x=>rowHtml(x.title,x.body||'',badge(x.priority))).join('')||empty('No alerts yet.'));
   $('#pipelineList').innerHTML=(cache.opps.filter(x=>!['rejected','completed'].includes(x.stage)).slice(0,6).map(x=>rowHtml(x.title,(x.opportunity_type||'opportunity')+(x.next_action?' · '+x.next_action:''),badge(x.stage))).join('')||empty('No active opportunities.'));
   $('#meetingList').innerHTML=(cache.meetings.filter(x=>new Date(x.ends_at)>new Date()).slice(0,5).map(x=>rowHtml(x.title,fmt(x.starts_at),badge(x.status))).join('')||empty('No upcoming meetings.'));
@@ -715,18 +747,35 @@ $('#ceoDailyActions').addEventListener('click',event=>{
 
 function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(title)+'</strong><div class="meta">'+esc(meta)+'</div></div><div>'+right+'</div></div>'}
 
+function taskCardHtml(x){
+  const approval=x.approval_required===true&&!['completed','cancelled'].includes(x.status);
+  let action='';
+  if(approval){
+    action=staff?.role==='owner'
+      ? '<button class="btn primary" onclick="window.reviewHqTask(\''+x.id+'\')">Review approval</button>'
+      : '<span class="badge waiting">CEO approval hold</span>';
+  }else if(x.status==='completed'){
+    action='<button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\'todo\')">Reopen</button>';
+  }else{
+    action='<button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\'completed\')">Complete</button>';
+  }
+  const due=x.due_at?'Due '+fmt(x.due_at):'No due date';
+  return '<div class="task-card"><div><strong>'+esc(x.title)+'</strong><div class="meta">'+esc(x.assignee_name||'Unassigned')+' · '+esc(due)+'</div></div><div class="task-actions">'+badge(x.status)+badge(x.priority)+action+'</div></div>';
+}
+function taskGroupHtml(title,description,items,emptyText){
+  return '<section class="task-group"><div class="task-group-head"><div><h3>'+esc(title)+'</h3><p>'+esc(description)+'</p></div><span class="badge">'+items.length+'</span></div>'+
+    (items.length?items.map(taskCardHtml).join(''):empty(emptyText))+'</section>';
+}
 function renderTasks(){
-  if(!cache.tasks.length){$('#tasksTable').innerHTML=empty('No tasks yet.');return}
-  $('#tasksTable').innerHTML='<div class="tablewrap"><table><thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due</th><th>Action</th></tr></thead><tbody>'+
-  cache.tasks.map(x=>{
-    const pending=x.approval_required===true&&!['completed','cancelled'].includes(x.status);
-    const action=pending
-      ? (staff?.role==='owner'
-          ? '<button class="btn primary" onclick="window.reviewHqTask(\''+x.id+'\')">Review approval</button>'
-          : '<span class="badge waiting">CEO approval hold</span>')
-      : '<button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\''+(x.status==='completed'?'todo':'completed')+'\')">'+(x.status==='completed'?'Reopen':'Complete')+'</button>';
-    return '<tr><td>'+esc(x.title)+'</td><td>'+esc(x.assignee_name||'—')+'</td><td>'+badge(x.status)+'</td><td>'+badge(x.priority)+'</td><td>'+esc(fmt(x.due_at))+'</td><td>'+action+'</td></tr>';
-  }).join('')+'</tbody></table></div>';
+  const buckets=taskBuckets();
+  $('#taskPendingCount').textContent=buckets.pending.length;
+  $('#taskWaitingCount').textContent=buckets.waiting.length;
+  $('#taskCompletedCount').textContent=buckets.completed.length;
+  $('#tasksTable').innerHTML=
+    taskGroupHtml('Pending','Work that can move now, sorted by urgency and due date.',buckets.pending,'Nothing pending right now.')+
+    taskGroupHtml('Waiting','Work blocked on a person, company, approval or reply.',buckets.waiting,'Nothing waiting right now.')+
+    taskGroupHtml('Completed','Completed in the last 7 days. Older completed work automatically leaves the monitoring view.',buckets.completed,'No completions in the last 7 days.')+
+    '<div class="task-archive-note">'+buckets.archived.length+' older completed/cancelled task(s) are preserved in HQ history but hidden from this live monitoring board.</div>';
 }
 window.setTaskStatus=async(id,status)=>{
   const t=(cache.tasks||[]).find(x=>x.id===id);

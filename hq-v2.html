@@ -566,8 +566,9 @@ async function loadAll(){
    lastHqRefresh=new Date();
    lastHqErrors=r.map((response,i)=>response.error?i:null).filter(i=>i!==null);
   cache={tasks:r[0].data||[],projects:r[1].data||[],opps:r[2].data||[],team:r[3].data||[],rights:r[4].data||[],meetings:r[5].data||[],kpis:r[6].data||[],alerts:r[7].data||[],activity:r[8].data||[],station:r[9].data||[],shows:r[10].data||[],media:r[11].data||[],radioOpps:r[12].data||[],compPolicy:r[13].data||null,compCycles:r[14].data||[],compAllocations:r[15].data||[],artists:r[16].data||[],artistSteps:r[17].data||[],communications:r[18].data||[]};
+  if(staff?.role==='owner'){ceoAccessLoaded=false;ceoAccessError=false;}
   render();
-  if(staff.role==='owner'){ceoAccessLoaded=false;ceoAccessError=false;loadAccessRequests();}
+  if(staff?.role==='owner')loadAccessRequests();
 }
 
 function render(){

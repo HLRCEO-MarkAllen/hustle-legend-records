@@ -632,7 +632,16 @@ function rowHtml(title,meta,right){return '<div class="row"><div><strong>'+esc(t
 
 function renderTasks(){
   if(!cache.tasks.length){$('#tasksTable').innerHTML=empty('No tasks yet.');return}
-  $('#tasksTable').innerHTML='<div class="tablewrap"><table><thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due</th><th></th></tr></thead><tbody>'+cache.tasks.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.assignee_name||'—')+'</td><td>'+badge(x.status)+'</td><td>'+badge(x.priority)+'</td><td>'+esc(fmt(x.due_at))+'</td><td><button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\''+(x.status==='completed'?'todo':'completed')+'\')">'+(x.status==='completed'?'Reopen':'Complete')+'</button></td></tr>').join('')+'</tbody></table></div>';
+  $('#tasksTable').innerHTML='<div class="tablewrap"><table><thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due</th><th>Action</th></tr></thead><tbody>'+
+  cache.tasks.map(x=>{
+    const pending=x.approval_required===true&&!['completed','cancelled'].includes(x.status);
+    const action=pending
+      ? (staff?.role==='owner'
+          ? '<button class="btn primary" onclick="window.reviewHqTask(\''+x.id+'\')">Review approval</button>'
+          : '<span class="badge waiting">CEO approval hold</span>')
+      : '<button class="btn" onclick="window.setTaskStatus(\''+x.id+'\',\''+(x.status==='completed'?'todo':'completed')+'\')">'+(x.status==='completed'?'Reopen':'Complete')+'</button>';
+    return '<tr><td>'+esc(x.title)+'</td><td>'+esc(x.assignee_name||'—')+'</td><td>'+badge(x.status)+'</td><td>'+badge(x.priority)+'</td><td>'+esc(fmt(x.due_at))+'</td><td>'+action+'</td></tr>';
+  }).join('')+'</tbody></table></div>';
 }
 window.setTaskStatus=async(id,status)=>{
   const t=(cache.tasks||[]).find(x=>x.id===id);

@@ -92,7 +92,7 @@
         if(upErr)throw upErr;
         uploaded=true;
       }
-      const row={artist_user_id:user.id,artist_name:profile.stage_name,track_title:title,release_title:$('releaseTitle').value.trim()||null,track_url:url||null,genre:$('genre').value.trim()||null,explicit:$('explicit').checked,notes:$('submissionNotes').value.trim()||null,wants_radio:$('wantRadio').checked,wants_editorial:$('wantEditorial').checked,wants_interview:$('wantInterview').checked,wants_licensing:$('wantLicensing').checked,master_controlled:$('masterControlled').checked,publishing_controlled:$('publishingControlled').checked,samples_cleared:$('samplesCleared').checked,authorized_to_submit:true,clean_available:$('cleanAvailable').checked,instrumental_available:$('instrumentalAvailable').checked,storage_path,status:'submitted',terms_version:'2026-09-17',terms_accepted_at:new Date().toISOString()};
+      const row={artist_user_id:user.id,artist_name:profile.stage_name,track_title:title,release_title:$('releaseTitle').value.trim()||null,track_url:url||null,genre:$('genre').value.trim()||null,explicit:$('explicit').checked,notes:$('submissionNotes').value.trim()||null,wants_radio:$('wantRadio').checked,wants_editorial:$('wantEditorial').checked,wants_interview:$('wantInterview').checked,wants_licensing:false,master_controlled:$('masterControlled').checked,publishing_controlled:$('publishingControlled').checked,samples_cleared:$('samplesCleared').checked,authorized_to_submit:true,clean_available:$('cleanAvailable').checked,instrumental_available:$('instrumentalAvailable').checked,storage_path,status:'submitted',terms_version:'2026-09-17',terms_accepted_at:new Date().toISOString()};
       const {error}=await sb.from('artist_submissions').insert(row);
       if(error)throw error;
       set($('submissionStatus'),'Submitted to HLR. Your dashboard will show each status change.','good');
@@ -112,7 +112,7 @@
     const {data,error}=await sb.from('artist_submissions').select('id,track_title,release_title,status,decision_note,created_at,wants_radio,wants_editorial,wants_interview,wants_licensing').order('created_at',{ascending:false});
     const el=$('submissionList');if(error)return el.innerHTML=`<div class="card">${esc(error.message)}</div>`;
     el.innerHTML=data.length?'':'<div class="card">No submissions yet.</div>';
-    data.forEach(s=>{const routes=[s.wants_radio&&'Radio',s.wants_editorial&&'Editorial',s.wants_interview&&'Interview',s.wants_licensing&&'Licensing'].filter(Boolean).join(' · ');const c=document.createElement('div');c.className='card';c.innerHTML=`<strong>${esc(s.track_title)}</strong> <span class="badge">${esc(String(s.status).replaceAll('_',' ').toUpperCase())}</span><div class="meta">${esc(routes||'General review')} · ${new Date(s.created_at).toLocaleString()}</div>${s.decision_note?`<p class="small">${esc(s.decision_note)}</p>`:''}`;el.appendChild(c);});
+    data.forEach(s=>{const routes=[s.wants_radio&&'Radio',s.wants_editorial&&'Editorial',s.wants_interview&&'Interview',false&&'Licensing'].filter(Boolean).join(' · ');const c=document.createElement('div');c.className='card';c.innerHTML=`<strong>${esc(s.track_title)}</strong> <span class="badge">${esc(String(s.status).replaceAll('_',' ').toUpperCase())}</span><div class="meta">${esc(routes||'General review')} · ${new Date(s.created_at).toLocaleString()}</div>${s.decision_note?`<p class="small">${esc(s.decision_note)}</p>`:''}`;el.appendChild(c);});
   }
 
   async function loadOpportunities(){

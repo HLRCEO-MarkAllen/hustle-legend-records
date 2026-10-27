@@ -50,7 +50,7 @@ async function load(){
    fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'config'})}).then(r=>r.json()).catch(()=>({connected:false}))
  ]);
  beats=b.data||[];licenses=l.data||[];paypalCfg=c;
- document.querySelector('#storeStatus').textContent=(c.connected&&s.payout_status==='live')?'Checkout live · Payments go to John’s connected PayPal merchant account':'Catalog live · Checkout awaiting John’s PayPal connection';
+ document.querySelector('#storeStatus').textContent=(c.connected&&c.mode==='live'&&s.payout_status==='live')?'Checkout live · PayPal credentials active':(c.connected&&c.mode==='live'&&s.payout_status==='paused')?'Live PayPal credentials active · Checkout paused pending John’s merchant-account verification':(c.connected&&c.mode==='sandbox')?'PayPal sandbox configured · Real purchases disabled':'Catalog live · PayPal checkout is not ready';
  render();
 }
 function render(){
@@ -71,7 +71,7 @@ async function selectLicense(id){
  document.querySelector('#buyerFields').hidden=false;
  document.querySelector('#payStatus').textContent='';
  const target=document.querySelector('#paypalButtons');target.innerHTML='';
- if(!paypalCfg?.connected||store.payout_status!=='live'){document.querySelector('#payStatus').textContent='Checkout is not connected yet. John must connect his PayPal Business account first.';return}
+ if(!paypalCfg?.connected||paypalCfg.mode!=='live'||store.payout_status!=='live'){document.querySelector('#payStatus').textContent=store.payout_status==='paused'?'Checkout paused: verify that the active live PayPal credentials belong to John before taking any payments.':'Live checkout unavailable. John’s PayPal Business credentials must be connected and verified.';return}
  if(!document.querySelector('script[data-paypal]')){
    const s=document.createElement('script');s.dataset.paypal='1';s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(paypalCfg.clientId)+'&currency=USD';s.onload=renderPayPal;document.head.appendChild(s);
  } else renderPayPal();

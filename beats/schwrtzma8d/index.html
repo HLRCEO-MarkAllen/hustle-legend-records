@@ -50,7 +50,11 @@ async function load(){
    fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'config'})}).then(r=>r.json()).catch(()=>({connected:false}))
  ]);
  beats=b.data||[];licenses=l.data||[];paypalCfg=c;
- document.querySelector('#storeStatus').textContent=(c.connected&&c.mode==='live'&&s.payout_status==='live')?'Checkout live · PayPal credentials active':(c.connected&&c.mode==='live'&&s.payout_status==='paused')?'Live PayPal credentials active · Checkout paused pending John’s merchant-account verification':(c.connected&&c.mode==='sandbox')?'PayPal sandbox configured · Real purchases disabled':'Catalog live · PayPal checkout is not ready';
+ document.querySelector('#storeStatus').textContent=(c.connected&&c.mode==='live'&&s.payout_status==='live')
+   ?(beats.length&&licenses.length?'Payments connected to John’s PayPal · Beat checkout available':'John’s PayPal connected and verified · Beat catalog and licenses are being prepared')
+   :(c.connected&&c.mode==='live'&&s.payout_status==='paused')
+    ?'Live PayPal credentials active · Checkout paused pending John’s merchant-account verification'
+    :(c.connected&&c.mode==='sandbox')?'PayPal sandbox configured · Real purchases disabled':'Catalog live · PayPal checkout is not ready';
  render();
 }
 function render(){

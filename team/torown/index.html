@@ -72,6 +72,15 @@
       .milestone b {
         color: #ffe39a;
       }
+      .social-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0 22px;
+      }
+      .social-links .btn {
+        text-align: center;
+      }
       .source-note {
         color: #8f887d;
         font-size: 0.84rem;
@@ -104,7 +113,7 @@
           "name": "Hustle Legend Records",
           "url": "https://hustlelegendrecords.com/"
         },
-        "sameAs": ["https://music.apple.com/us/artist/torown/1536204601"]
+        "sameAs": ["https://music.apple.com/us/artist/torown/1536204601", "https://open.spotify.com/artist/6Lw8eoXe4Gq8jRFX55F9qS", "https://www.tiktok.com/@torowndee"]
       }
     </script>
   </head>
@@ -174,13 +183,12 @@
                 ><span>Active performance experience</span>
               </div>
             </div>
-            <a
-              class="btn primary"
-              href="https://music.apple.com/us/artist/torown/1536204601"
-              target="_blank"
-              rel="noopener"
-              >TOROWN ON APPLE MUSIC</a
-            >
+            <div class="eyebrow" id="torown-socials">FOLLOW TOROWN</div>
+            <div class="social-links" aria-label="Torown social media and music profiles">
+              <a class="btn primary" href="https://www.tiktok.com/@torowndee" target="_blank" rel="noopener noreferrer">TIKTOK · @torowndee</a>
+              <a class="btn" href="https://open.spotify.com/artist/6Lw8eoXe4Gq8jRFX55F9qS" target="_blank" rel="noopener noreferrer">SPOTIFY</a>
+              <a class="btn" href="https://music.apple.com/us/artist/torown/1536204601" target="_blank" rel="noopener noreferrer">APPLE MUSIC</a>
+            </div>
             <a class="btn" href="../../songs/told-u/">EXPLORE “TOLD U”</a>
           </div>
         </div>
